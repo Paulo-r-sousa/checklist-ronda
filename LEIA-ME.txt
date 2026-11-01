@@ -1,0 +1,42 @@
+CHECKLIST L’ESSENCE MOOCA - APP INSTALÁVEL (funciona sem internet)
+
+O QUE TEM NESTA PASTA
+  index.html           o aplicativo
+  manifest.webmanifest nome, cores e ícones do app instalado
+  sw.js                guarda tudo no aparelho para uso sem internet
+  jspdf.umd.min.js     gerador de PDF (cópia local)
+  fonts/               fontes Playfair Display e Lato (cópia local)
+  icon-*.png, apple-touch-icon.png   ícones com o monograma LE
+
+1) PUBLICAR (precisa ser um endereço https; escolha uma opção)
+  - Netlify: entre em app.netlify.com, escolha adicionar um novo site e implantar manualmente
+    (Deploy manually), e arraste esta pasta inteira para a página.
+  - GitHub Pages: crie um repositório, envie estes arquivos, abra Settings > Pages e
+    publique a partir da branch principal.
+  - Cloudflare Pages: crie um projeto com upload direto desta pasta.
+  Os nomes dos menus podem mudar com o tempo. O que importa: os arquivos precisam ficar
+  juntos, na raiz do endereço, e o endereço precisa começar com https.
+
+2) INSTALAR NO CELULAR (com internet, na primeira vez)
+  - Android (Chrome): abra o endereço, toque no menu (três pontos) e em "Instalar app"
+    ou "Adicionar à tela inicial".
+  - iPhone (Safari): abra o endereço no Safari, toque em Compartilhar e em
+    "Adicionar à Tela de Início". Precisa ser o Safari.
+
+3) TESTAR O MODO OFFLINE
+  Abra o app instalado uma vez com internet. Depois ative o modo avião, feche e abra de novo:
+  o checklist deve abrir e permitir preencher, assinar e gerar o PDF.
+
+4) ATUALIZAR O APP
+  Troque os arquivos publicados e aumente o número em sw.js (VERSAO = "v2"). Sem isso, os
+  aparelhos continuam com a versão antiga guardada.
+
+5) O QUE FICA GUARDADO
+  Rascunho e histórico ficam só no aparelho e no navegador/app onde foram feitos. Limpar os dados
+  do navegador ou desinstalar o app apaga esses dados. No iPhone, o app instalado e o Safari
+  têm armazenamento separado.
+
+6) LIMITES
+  - O WhatsApp sempre exige o toque em "enviar".
+  - No PDF, os títulos usam a fonte Times (a Playfair Display não está embutida no PDF).
+  - Testado em simulador e na lógica; confirme em um Android e em um iPhone reais antes de distribuir.
