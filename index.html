@@ -120,6 +120,7 @@ input[type=month]{width:100%;font:inherit;color:var(--ink);background:var(--bg);
 <section id="home"><main>
   <div class="hello"><div class="hi" id="hi"></div><div class="motto">Conforto • Bem-estar • Qualidade de vida</div></div>
   <section class="box stale" id="bkrem" hidden><b>Faça um backup do histórico</b><small id="bkrems"></small><div class="stack"><button class="act p" id="bkgo" style="max-width:none">Fazer backup agora</button></div></section>
+  <section class="box" id="sent" hidden><b style="font:600 18px 'Playfair Display',Georgia,serif;display:block">Ronda de hoje enviada às <span id="sentt"></span></b><small style="display:block;color:var(--mut);margin-top:2px">O PDF foi gerado e a vistoria está no histórico. Para outra ronda, comece uma nova.</small><div class="two"><button class="act s" id="sview">Rever</button><button class="act p" id="snew">Nova ronda</button></div></section>
   <section class="box stale" id="stale" hidden><b>Checklist de <span id="staled"></span> em andamento</b><small>Esse rascunho não é de hoje. Envie-o ou comece um novo.</small><div class="two"><button class="act s" id="stopen">Abrir</button><button class="act p" id="stnew">Começar novo</button></div></section>
   <button class="mod" id="open"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v3H9zM8 5.5H6v15h12v-15h-2M9 14l2 2 4-4"/></svg></span><span><b>Checklist diário</b><small id="hs"></small></span></button>
   <button class="mod" id="openh"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5M12 7v5l3 2"/></svg></span><span><b>Histórico</b><small id="hh"></small></span></button>
@@ -144,7 +145,7 @@ input[type=month]{width:100%;font:inherit;color:var(--ink);background:var(--bg);
 <div id="app" hidden>
 <main>
   <section class="box">
-    <div class="row2"><div><label for="dt">Data da vistoria</label><input type="date" id="dt"></div><div><label for="tm">Horário</label><input type="time" id="tm"></div></div>
+    <div class="row2"><div><label for="dt">Data da vistoria</label><input type="date" id="dt"></div><div><label for="tm">Início da ronda</label><input type="time" id="tm"></div></div>
     <div><label for="tn">Turno</label><select id="tn"><option>Madrugada</option><option>Manhã</option><option>Tarde</option><option>Noite</option></select></div>
     <label for="resp">Responsável pela vistoria</label><input type="text" id="resp" placeholder="Nome completo" autocomplete="name">
   </section>
@@ -202,7 +203,7 @@ const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+
 const hhmm=()=>{const d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes())};
 const turnoPadrao=()=>{const h=new Date().getHours();return h<6?"Madrugada":h<12?"Manhã":h<18?"Tarde":"Noite"};
 const slug=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,24);
-const fresh=()=>({a:{},dt:today(),tm:hhmm(),tn:turnoPadrao(),resp:"",obs:"",sig:"",part:false,why:""});
+const fresh=()=>({a:{},dt:today(),tm:hhmm(),tf:"",tn:turnoPadrao(),resp:"",obs:"",sig:"",part:false,why:""});
 let S=fresh();
 try{const r=KV.get("lessence-diario");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
 let saveFail=false;
@@ -349,7 +350,7 @@ function makePdf(sg){
   d.setFont("times","bold");d.setFontSize(17);d.setTextColor(...(nc?BAD:OK));
   d.text(nc?nc+(nc===1?" não conformidade":" não conformidades"):"Nenhuma não conformidade",M+5,y+7);
   d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(...V);
-  d.text("Data: "+fmtDate(S.dt)+"     Horário: "+S.tm,M+5,y+14);d.text("Responsável: "+S.resp+"     Turno: "+(S.tn||""),M+5,y+20);
+  d.text("Data: "+fmtDate(S.dt)+"     Início: "+S.tm+"     Envio: "+(S.tf||hhmm()),M+5,y+14);d.text("Responsável: "+S.resp+"     Turno: "+(S.tn||""),M+5,y+20);
   d.setTextColor(...MU);d.text(ins+(ins===1?" área vistoriada":" áreas vistoriadas"),W-M-5,y+7,{align:"right"});const ok0=ins-nc,nf=IDX.reduce((t,i)=>t+(S.a[i]&&S.a[i].p?S.a[i].p.length:0),0);d.text(ok0+(ok0===1?" sem ocorrência":" sem ocorrências"),W-M-5,y+13,{align:"right"});if(nf)d.text(nf+(nf===1?" foto anexada":" fotos anexadas"),W-M-5,y+19,{align:"right"});
   y+=32;
   if(pend&&S.why.trim()){d.setFont("helvetica","italic");d.setFontSize(9.5);d.setTextColor(...MU);const t=d.splitTextToSize("Justificativa: "+S.why.trim(),W-2*M);room(t.length*4.5);d.text(t,M,y);y+=t.length*4.5+4}
@@ -375,7 +376,7 @@ function makePdf(sg){
       if(rs.length){K.txt("Resolvidas desde a vistoria anterior",{size:10.5,font:"bold",color:[26,26,26],gap:2});rs.forEach(K.caso)}}
     y=K.y}
   /* registro por área */
-  room(40);sec("Registro por área");
+  room(75);sec("Registro por área");
   const thead=()=>{d.setFont("helvetica","bold");d.setFontSize(9);d.setTextColor(...MU);d.text("Área",M,y);d.text("Limpeza",92,y);d.text("Organização",126,y);d.text("Integridade",162,y);y+=2;d.setDrawColor(215);d.line(M,y,W-M,y);y+=5};thead();
   IDX.filter(insp).forEach(i=>{
     const a=S.a[i];d.setFont("helvetica","italic");d.setFontSize(9.5);const nt=!hasNC(a)&&a.n?d.splitTextToSize("Obs.: "+a.n,W-2*M-6):[],ph=!hasNC(a)?(a.p||[]):[];{const pg0=d.getNumberOfPages();room(6.5+nt.length*4.5+(ph.length?Math.ceil(ph.length/4)*33:0));if(d.getNumberOfPages()>pg0)thead()}
@@ -395,7 +396,7 @@ function makePdf(sg){
   if(y+32>281){d.addPage();y=18}y+=5;
   if(sg){const w=48,h=w*sg.h/sg.w;d.addImage(sg.u,"JPEG",M,y,w,h);y+=h}else y+=18;
   d.setDrawColor(...V);d.line(M,y,M+80,y);d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(...V);d.text(S.resp+" · Responsável pela vistoria",M,y+5);
-  pdfRodape(d,"L’Essence Mooca · "+rondaId()+" · "+fmtDate(S.dt)+" · "+(S.tn?S.tn+" · ":"")+S.tm);
+  pdfRodape(d,"L’Essence Mooca · "+rondaId()+" · Início "+S.tm);
   return d.output("blob");
 }
 function resumoTxt(){
@@ -410,7 +411,7 @@ $("share").onclick=()=>{
   if(!window.jspdf){toast("A biblioteca de PDF não carregou. Verifique a conexão.");return}
   sigForPdf(async sg=>{
    try{
-    await Promise.race([loadPdfFonts(),new Promise(r=>setTimeout(r,2500))]);archive();const blob=makePdf(sg),name="checklist-"+S.dt+(slug(S.tn)?"-"+slug(S.tn):"")+(slug(S.resp)?"-"+slug(S.resp):"")+".pdf",file=new File([blob],name,{type:"application/pdf"}),txt=resumoTxt();
+    await Promise.race([loadPdfFonts(),new Promise(r=>setTimeout(r,2500))]);S.tf=hhmm();save();archive();const blob=makePdf(sg),name="checklist-"+S.dt+(slug(S.tn)?"-"+slug(S.tn):"")+(slug(S.resp)?"-"+slug(S.resp):"")+".pdf",file=new File([blob],name,{type:"application/pdf"}),txt=resumoTxt();
     try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Checklist diário L’Essence Mooca",text:txt});return}}catch(e){if(e.name==="AbortError")return}
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();
     toast("O compartilhamento de arquivos não está disponível aqui. Tentei baixar o PDF e abrir o WhatsApp com o resumo. Se nada aparecer, abra o app direto no navegador do aparelho.",9000);
@@ -431,7 +432,7 @@ function acoes(){const a=ld(AK)||[],old=ld(RK)||{};
 function archive(){
   const ncs=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])).map(i=>{const a=S.a[i];return{area:AREAS[i],crit:critTxt(a),c:CR.filter(k=>a[k]==="nc"),n:(a.n||"").trim()}});
   const st={};IDX.filter(i=>anyk(S.a[i])).forEach(i=>{const a=S.a[i];st[AREAS[i]]={l:a.l||"",o:a.o||"",g:a.g||""}});
-  const e={dt:S.dt,tm:S.tm,tn:S.tn||"",resp:S.resp.trim(),ins:Object.keys(st).length,ncs,st,why:S.why.trim(),obs:S.obs.trim()};
+  const e={dt:S.dt,tm:S.tm,tn:S.tn||"",tf:S.tf||"",resp:S.resp.trim(),ins:Object.keys(st).length,ncs,st,why:S.why.trim(),obs:S.obs.trim()};
   const h=hist().filter(x=>!(x.dt===e.dt&&(x.tn||"")===e.tn));h.push(e);h.sort((a,b)=>asc(b,a));histSave(h.slice(0,800));refreshOpen();
 }
 /* Pendência = sequência de "Não conforme" numa área e critério. Fecha na primeira vistoria "Conforme" ou numa providência "Resolvida". */
@@ -474,7 +475,7 @@ function usePdfFonts(d){if(!PDFF.data)return;try{
   const sf=d.setFont.bind(d);d.setFont=(n,st,w)=>sf(n==="helvetica"?"Lato":n==="times"?"Playfair":n,st,w);d.setFont("helvetica","normal")}catch(e){}}
 const LIGA=["de","da","do","das","dos","e"];
 const nm=t=>{t=String(t||"").trim();if(t!==t.toUpperCase()&&t!==t.toLowerCase())return t;return t.toLowerCase().split(/\s+/).map((w,i)=>i&&LIGA.includes(w)?w:w.charAt(0).toUpperCase()+w.slice(1)).join(" ")};
-const rondaId=()=>{const p=String(S.resp||"").trim().split(/\s+/).filter(w=>w&&!LIGA.includes(w.toLowerCase())),ini=p.length?(p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase():"";return "LE-"+S.dt.replace(/-/g,"")+"-"+(slug(S.tn)||"ronda").toUpperCase()+(ini?"-"+ini:"")};
+const rondaId=()=>{const p=String(S.resp||"").trim().split(/\s+/).filter(w=>w&&!LIGA.includes(w.toLowerCase())),ini=p.length?(p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase():"";return "LE-"+fmtDate(S.dt)+"-"+(slug(S.tn)||"ronda").toUpperCase()+(ini?"-"+ini:"")};
 function pdfCab(d,sub,id){
   const M=14,W=210,G=[201,169,97],V=[26,26,26],MU=[107,107,107];
   d.setDrawColor(...G);d.setLineWidth(.7);d.circle(M+9,M+9,9);d.setLineWidth(.2);d.circle(M+9,M+9,7.6);
@@ -651,12 +652,15 @@ $("hresf").onchange=()=>{
 $("hm").oninput=renderHist;$("openh").onclick=()=>show("hist");
 function bkrem(){const n=hist().length+(ld(AK)||[]).length,b=KV.get("lessence-bak");let dias=null;if(b)dias=Math.floor((new Date(today()+"T12:00:00")-new Date(b+"T12:00:00"))/864e5);
   const v=n>0&&(dias===null||dias>=7);$("bkrem").hidden=!v;if(v)$("bkrems").textContent=dias===null?"Nenhum backup feito ainda. Se o aparelho for trocado, perdido ou limpo, o histórico se perde.":"Último backup gerado há "+dias+" dias. Envie o arquivo para o WhatsApp, e-mail ou nuvem."}
-function home(){stale();bkrem();refreshOpen();const h=new Date().getHours(),n=done();$("hi").textContent=h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";
-  $("hs").textContent=n?"Em andamento: "+n+" de "+REQ.length+" áreas":REQ.length+" áreas diárias · Limpeza, organização e integridade";const hc=hist().length;$("hh").textContent=(OPENP.length?OPENP.length+(OPENP.length===1?" pendência aberta · ":" pendências abertas · "):"")+(hc?hc+(hc===1?" vistoria guardada":" vistorias guardadas"):"Nenhuma vistoria enviada ainda")}
+function novaRonda(){S=Object.assign(fresh(),{resp:S.resp});save();fill();clearSig();build()}
+function home(){if(S.tf&&S.dt!==today())novaRonda();const env=!!S.tf&&S.dt===today();$("sent").hidden=!env;if(env)$("sentt").textContent=S.tf;stale();bkrem();refreshOpen();const h=new Date().getHours(),n=done();$("hi").textContent=h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";
+  $("hs").textContent=env?"Enviada hoje às "+S.tf+" · toque para rever":n?"Em andamento: "+n+" de "+REQ.length+" áreas":REQ.length+" áreas diárias · Limpeza, organização e integridade";const hc=hist().length;$("hh").textContent=(OPENP.length?OPENP.length+(OPENP.length===1?" pendência aberta · ":" pendências abertas · "):"")+(hc?hc+(hc===1?" vistoria guardada":" vistorias guardadas"):"Nenhuma vistoria enviada ainda")}
 function show(v){$("home").hidden=v!=="home";$("app").hidden=v!=="app";$("hist").hidden=v!=="hist";$("back").hidden=v==="home";if(v==="home")home();else if(v==="app"){sizeSig();window.scrollTo(0,0)}else{renderHist();window.scrollTo(0,0)}}
 const hasProg=()=>Object.keys(S.a).length>0||!!S.obs||!!S.sig;
 function stale(){const old=S.dt!==today()&&hasProg();$("stale").hidden=!old;if(old)$("staled").textContent=fmtDate(S.dt)}
 $("stopen").onclick=()=>show("app");
+$("sview").onclick=()=>show("app");
+$("snew").onclick=()=>{if(confirm("Começar uma nova ronda? A ronda de hoje já foi enviada e fica no histórico. Se o turno da nova ronda for o mesmo, ela substitui a anterior no histórico.")){novaRonda();home()}};
 $("stnew").onclick=()=>{if(confirm("Apagar o rascunho de "+fmtDate(S.dt)+" e começar um novo?")){S=Object.assign(fresh(),{resp:S.resp});save();fill();clearSig();build();home()}};
 $("open").onclick=()=>show("app");$("back").onclick=()=>show("home");
 loadPdfFonts();
