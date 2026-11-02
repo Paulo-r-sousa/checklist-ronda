@@ -1,6 +1,6 @@
 // Service worker: guarda o app no aparelho para funcionar sem internet.
 // A cada publicação nova, aumente VERSAO (v2, v3...) para os aparelhos receberem a atualização.
-const VERSAO = "v7";
+const VERSAO = "v9";
 const CACHE = "checklist-lessence-" + VERSAO;
 const ARQUIVOS = [
   "./",
@@ -10,13 +10,7 @@ const ARQUIVOS = [
   "./icon-192.png",
   "./icon-512.png",
   "./icon-maskable-512.png",
-  "./apple-touch-icon.png",
-  "./fonts/lato-latin-400-normal.woff2",
-  "./fonts/lato-latin-700-normal.woff2",
-  "./fonts/lato-latin-900-normal.woff2",
-  "./fonts/playfair-display-latin-400-normal.woff2",
-  "./fonts/playfair-display-latin-600-normal.woff2",
-  "./fonts/playfair-display-latin-700-normal.woff2"
+  "./apple-touch-icon.png"
 ];
 
 self.addEventListener("install", e => {
