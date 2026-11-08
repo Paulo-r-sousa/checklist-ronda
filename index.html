@@ -141,7 +141,7 @@ input[type=month]{width:100%;font:inherit;color:var(--ink);background:var(--bg);
     <b class="sec2" style="margin-top:14px">Resolvidas no mês</b><div id="reslist"></div></section>
   <b class="sec2" style="margin:16px 4px 0">Vistorias do mês</b>
   <div id="hlist" style="margin-top:6px"></div>
-  <section class="box"><b class="sec2">Proteção para excluir</b><div class="stack"><button class="act s" id="pinbtn" style="max-width:none"></button></div><span class="hint">Com PIN, só quem o conhece exclui vistorias. Mesmo sem PIN, toda exclusão fica registrada e aparece no relatório para o Gerente Predial. O PIN evita exclusão por engano ou por curiosidade, mas quem limpar os dados do navegador ainda apaga tudo; por isso faça backups.</span></section>
+  <section class="box"><b class="sec2">Proteção para excluir</b><div class="stack"><button class="act s" id="pinbtn" style="max-width:none"></button><button class="act s" id="xclr" style="max-width:none">Limpar registro de exclusões</button></div><span class="hint">Com PIN, só quem o conhece exclui vistorias. Mesmo sem PIN, toda exclusão fica registrada e aparece no relatório para o Gerente Predial. O registro de exclusões pode ser limpo pelo botão acima (pede o PIN, se houver), mas isso apaga o rastro: use só para descartar testes. O PIN evita exclusão por engano ou por curiosidade, mas quem limpar os dados do navegador ainda apaga tudo; por isso faça backups.</span></section>
   <section class="box"><b class="sec2">Enviar e guardar</b>
     <div class="stack">
       <button class="act p" id="hrel" style="max-width:none">Relatório do período para o Gerente Predial (PDF)</button>
@@ -871,6 +871,14 @@ $("hresf").onchange=()=>{
 };
 $("dvn").oninput=()=>{const d=dev();d.nome=$("dvn").value.trim();sv(DK,d);$("dvrem").hidden=!!d.nome};
 $("pinbtn").onclick=mudarPin;
+async function limparExcl(){
+  const n=dels().length;
+  if(!n){toast("Não há exclusões registradas.");return}
+  if(!confirm("Limpar o registro de "+n+(n===1?" exclusão":" exclusões")+" deste aparelho?\n\nEle deixa de aparecer nos relatórios. As vistorias excluídas não voltam. Use só para descartar testes.\n\nDica: faça um backup antes. Backups antigos ainda guardam o registro e, ao serem importados, ele volta."))return;
+  if(!(await pinOk("Digite o PIN para limpar o registro de exclusões.")))return;
+  if(sv(XK,[])){toast("Registro de exclusões limpo.");renderHist()}
+}
+$("xclr").onclick=limparExcl;
 $("dvgo").onclick=()=>{show("hist");$("dvn").focus()};
 $("hm").oninput=renderHist;$("openh").onclick=()=>show("hist");
 function bkrem(){const n=hist().length+(ld(AK)||[]).length,b=KV.get("lessence-bak");let dias=null;if(b)dias=Math.floor((new Date(today()+"T12:00:00")-new Date(b+"T12:00:00"))/864e5);
