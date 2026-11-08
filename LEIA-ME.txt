@@ -38,5 +38,12 @@ O QUE TEM NESTA PASTA
 
 6) LIMITES
   - O WhatsApp sempre exige o toque em "enviar".
-  - No PDF, os títulos usam a fonte Times (a Playfair Display não está embutida no PDF).
-  - Testado em simulador e na lógica; confirme em um Android e em um iPhone reais antes de distribuir.
+  - As fontes Playfair Display e Lato são embutidas no PDF; o arquivo fica maior (cerca de 150 KB).
+  - A ronda não precisa cobrir todas as áreas. Só entram no PDF as áreas marcadas; área em branco não é falta.
+  - O histórico guarda até 3000 vistorias por aparelho. Perto do limite o app avisa; ao passar, as mais antigas saem.
+  - Excluir vistoria: o Gerente Predial pode definir um PIN em Histórico > Proteção para excluir. Toda exclusão
+    (com ou sem PIN) aparece no relatório mensal. O PIN não impede quem limpar os dados do navegador: faça backups.
+  - Antes de gerar o relatório mensal, importe o histórico dos outros aparelhos. O app lembra quando o mês só tem
+    registros de um aparelho.
+  - Testado em Chromium com tela de celular simulada. Confirme em um Android e em um iPhone reais (câmera,
+    compartilhamento de arquivo e PDF em outros leitores) antes de distribuir.
