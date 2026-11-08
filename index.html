@@ -20,10 +20,10 @@
 @font-face{font-family:"Lato";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/lato-latin-400-normal.woff2) format("woff2")}
 @font-face{font-family:"Lato";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/lato-latin-700-normal.woff2) format("woff2")}
 @font-face{font-family:"Lato";font-style:normal;font-weight:900;font-display:swap;src:url(fonts/lato-latin-900-normal.woff2) format("woff2")}
-:root{--bg:#F7F6F4;--card:#fff;--ink:#1A1A1A;--mut:#6B6B6B;--line:#E5E5E0;--ok:#2F7D4F;--bad:#B93C3C;--na:#7A7A74;--gold:#C9A961;--gd:#A8893E;--on:#fff;--hdr:#1A1A1A;--hdrt:#fff;
+:root{--bg:#F7F6F4;--card:#fff;--ink:#1A1A1A;--mut:#6B6B6B;--line:#E5E5E0;--ok:#2F7D4F;--bad:#B93C3C;--na:#7A7A74;--gold:#C9A961;--gd:#A8893E;--on:#fff;--hdr:#1A1A1A;--hdrt:#fff;--risk:#7A1313;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111111;--card:#1B1B1A;--ink:#F2EFE8;--mut:#A8A8A2;--line:#302F2B;--ok:#5CB85C;--bad:#E06060;--na:#8C8C86;--gold:#C9A961;--gd:#D9BC78;--on:#111;--hdr:#0A0A0A;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#111111;--card:#1B1B1A;--ink:#F2EFE8;--mut:#A8A8A2;--line:#302F2B;--ok:#5CB85C;--bad:#E06060;--na:#8C8C86;--gold:#C9A961;--gd:#D9BC78;--on:#111;--hdr:#0A0A0A;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111111;--card:#1B1B1A;--ink:#F2EFE8;--mut:#A8A8A2;--line:#302F2B;--ok:#5CB85C;--bad:#E06060;--na:#8C8C86;--gold:#C9A961;--gd:#D9BC78;--on:#111;--hdr:#0A0A0A;--risk:#FF8A8A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111111;--card:#1B1B1A;--ink:#F2EFE8;--mut:#A8A8A2;--line:#302F2B;--ok:#5CB85C;--bad:#E06060;--na:#8C8C86;--gold:#C9A961;--gd:#D9BC78;--on:#111;--hdr:#0A0A0A;--risk:#FF8A8A;color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.45 Lato,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:110px}
 header{background:var(--hdr);color:var(--hdrt);padding:22px 16px 18px;border-bottom:4px solid var(--gold)}
@@ -114,6 +114,9 @@ input[type=month]{width:100%;font:inherit;color:var(--ink);background:var(--bg);
 .seg2 button[aria-pressed=true]{background:var(--gold);border-color:var(--gold);color:#1A1A1A}
 .sum{display:flex;flex-wrap:wrap;gap:1px 12px}.chip{white-space:nowrap}
 .rp{margin:2px 0}.rp>summary{display:flex;align-items:center;min-height:44px;cursor:pointer;font:600 14px Lato,system-ui,sans-serif;color:var(--gd);list-style:none}.rp>summary::-webkit-details-marker{display:none}.rp>summary::after{content:"▾";margin-left:8px}.rp[open]>summary::after{content:"▴"}
+.seg4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.seg4 button{font:600 14px Lato,system-ui,sans-serif;min-height:44px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;padding:0 2px}
+.seg4 button[aria-pressed=true]{border-color:transparent;color:var(--on)}.seg4 button[data-g=baixa][aria-pressed=true]{background:var(--na)}.seg4 button[data-g=media][aria-pressed=true]{background:var(--gold);color:#1A1A1A}.seg4 button[data-g=alta][aria-pressed=true]{background:var(--bad)}.seg4 button[data-g=risco][aria-pressed=true]{background:var(--risk)}
+.xe{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}.xe.bad{border-left:5px solid var(--bad)}.xe.ok{border-left:5px solid var(--ok)}.xe .lb{margin-top:10px}.xe .hint.er{color:var(--bad)}
 </style>
 </head>
 <body>
@@ -199,7 +202,7 @@ await KV.init();
 const AREAS=["Academia","Piscina coberta","Hall e elevadores – Torre A","Hall e elevadores – Torre B","Hall e elevadores – Torre C","Hall e elevadores – Torre D","Churrasqueira B/D","Churrasqueira Salão Gourmet","Salão de Festas Gourmet","Salão de Festas Adulto","Salão de Festas Infantil","Espaço Jovem","Campo de grama sintética grande","Brinquedoteca","Quadra de Areia","Quadra de Tênis","Quadra Poliesportiva","Espaço PAT","Lobby de entrada e elevador","Piscina descoberta adulto","Piscina descoberta infantil","Jacuzzi","SPA","Campo de grama sintética pequeno","Churrasqueira próximo às quadras"];
 /* A ronda não precisa cobrir todas as áreas: outras equipes também rondam o condomínio. Só entram no PDF as áreas marcadas; área em branco não é falta. */
 const IDX=AREAS.map((_,i)=>i),ORDER=(()=>{const AF={"Churrasqueira Salão Gourmet":["Churrasqueira próximo às quadras"],"Campo de grama sintética grande":["Campo de grama sintética pequeno"],"Hall e elevadores – Torre D":["Lobby de entrada e elevador"],"Piscina coberta":["Piscina descoberta adulto","Piscina descoberta infantil","Jacuzzi","SPA"]},mv=[].concat(...Object.values(AF)).map(n=>AREAS.indexOf(n)),o=IDX.filter(i=>!mv.includes(i));Object.keys(AF).forEach(k=>{const t=o.indexOf(AREAS.indexOf(k));o.splice(t<0?o.length:t+1,0,...AF[k].map(n=>AREAS.indexOf(n)))});return o})();
-const IC={gym:"M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11",pool:"M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2.5-1.5 4.5-1.5S19 15 21 15M3 19.5c2 0 2-1.5 4.5-1.5s2.5 1.5 4.5 1.5 2.5-1.5 4.5-1.5 2.5 1.5 4.5 1.5M8 11V5a2 2 0 0 1 4 0M14 11V5",elev:"M5 3h14v18H5zM12 3v18M8.5 10l1.5-2 1.5 2M12.5 14l1.5 2 1.5-2",grill:"M4 10h16a8 8 0 0 1-16 0zM8 21l2-3M16 21l-2-3M9 6c0-1.5 1.5-1.5 1.5-3M14 6c0-1.5 1.5-1.5 1.5-3",party:"M7 3h10l-1 7a4 4 0 0 1-8 0zM12 14v7M8.5 21h7",game:"M7 9h10a4 4 0 0 1 4 4v1a3 3 0 0 1-5.2 2L14 14h-4l-1.8 2A3 3 0 0 1 3 14v-1a4 4 0 0 1 4-4zM8 11.5v3M6.5 13h3M15.5 12.5h.01M17.5 14h.01",toy:"M4 13h7v7H4zM13 13h7v7h-7zM8.5 5h7v7h-7z",sand:"M12 8m-3 0a3 3 0 1 0 6 0 3 3 0 1 0-6 0M3 19c3-5 6-5 9-1s6 3 9-2M12 2v1.5M5 5l1 1M19 5l-1 1",tennis:"M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M5 5.5c3 2 3 11 0 13M19 5.5c-3 2-3 11 0 13",court:"M3 6h18v12H3zM12 6v12M3 10h3v4H3M21 10h-3v4h3",home:"M12 3l9 7v10H3V10zM9 20v-6h6v6"};
+const IC={gym:"M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11",pool:"M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2.5-1.5 4.5-1.5S19 15 21 15M3 19.5c2 0 2-1.5 4.5-1.5s2.5 1.5 4.5 1.5 2.5-1.5 4.5-1.5 2.5 1.5 4.5 1.5M8 11V5a2 2 0 0 1 4 0M14 11V5",elev:"M5 3h14v18H5zM12 3v18M8.5 10l1.5-2 1.5 2M12.5 14l1.5 2 1.5-2",grill:"M4 10h16a8 8 0 0 1-16 0zM8 21l2-3M16 21l-2-3M9 6c0-1.5 1.5-1.5 1.5-3M14 6c0-1.5 1.5-1.5 1.5-3",party:"M7 3h10l-1 7a4 4 0 0 1-8 0zM12 14v7M8.5 21h7",game:"M7 9h10a4 4 0 0 1 4 4v1a3 3 0 0 1-5.2 2L14 14h-4l-1.8 2A3 3 0 0 1 3 14v-1a4 4 0 0 1 4-4zM8 11.5v3M6.5 13h3M15.5 12.5h.01M17.5 14h.01",toy:"M4 13h7v7H4zM13 13h7v7h-7zM8.5 5h7v7h-7z",sand:"M12 8m-3 0a3 3 0 1 0 6 0 3 3 0 1 0-6 0M3 19c3-5 6-5 9-1s6 3 9-2M12 2v1.5M5 5l1 1M19 5l-1 1",tennis:"M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M5 5.5c3 2 3 11 0 13M19 5.5c-3 2-3 11 0 13",court:"M3 6h18v12H3zM12 6v12M3 10h3v4H3M21 10h-3v4h3",home:"M12 3l9 7v10H3V10zM9 20v-6h6v6",plus:"M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 8v8M8 12h8"};
 function ico(n){const k=/academia/i.test(n)?"gym":/piscina|jacuzzi|^spa$/i.test(n)?"pool":/hall|elevador/i.test(n)?"elev":/churrasq/i.test(n)?"grill":/sal[aã]o/i.test(n)?"party":/jovem/i.test(n)?"game":/brinqued/i.test(n)?"toy":/areia/i.test(n)?"sand":/t[eê]nis/i.test(n)?"tennis":/quadra|campo/i.test(n)?"court":"home";return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+IC[k]+'"/></svg>'}
 const LBL={ok:"Conforme",nc:"Não conforme",na:"N/A"};
 const $=id=>document.getElementById(id),pad=n=>String(n).padStart(2,"0");
@@ -207,24 +210,50 @@ const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+
 const hhmm=()=>{const d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes())};
 const turnoPadrao=()=>{const h=new Date().getHours();return h<6?"Madrugada":h<12?"Manhã":h<18?"Tarde":"Noite"};
 const slug=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,24);
-const fresh=()=>({a:{},dt:today(),tm:hhmm(),tn:turnoPadrao(),resp:"",obs:"",sig:""});
+const fresh=()=>({a:{},x:[],dt:today(),tm:hhmm(),tn:turnoPadrao(),resp:"",obs:"",sig:""});
 let S=fresh();
 try{const r=KV.get("lessence-diario");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
 let saveFail=false;
 const save=()=>{try{if(!KV.set("lessence-diario",JSON.stringify(S)))throw new Error("x");if(saveFail){saveFail=false;toast("O rascunho voltou a ser salvo.")}}catch(e){if(!saveFail){saveFail=true;toast("Não foi possível salvar o rascunho neste aparelho (memória cheia ou navegação privada). Gere o PDF logo para não perder o trabalho.")}}};
 const A=i=>S.a[i]||(S.a[i]={});
-const CR=["l","o","g"],CN={l:"Limpeza",o:"Organização",g:"Integridade"};
+const CR=["l","o","g"],CN={l:"Limpeza",o:"Organização",g:"Integridade",x:"Área não listada"},CRX=CR.concat("x");
 const hasNC=a=>CR.some(k=>a[k]==="nc"),anyk=a=>!!a&&CR.some(k=>a[k]),fullk=a=>!!a&&CR.every(k=>a[k]);
 const critTxt=a=>{const r=CR.filter(k=>a[k]==="nc").map(k=>CN[k]);return r.length>1?r.slice(0,-1).join(", ")+" e "+r[r.length-1]:r.join("")};
 const ab=v=>v==="ok"?"✓":v==="nc"?"✕":v==="na"?"N/A":"–";
 /*fim-helpers*/
+/* ---- Outra área (não listada) ----
+   Cada ocorrência é um item de S.x: {id, nome, n (ocorrência), gv (gravidade), p (fotos), r ("nc" ou "ok")}.
+   No histórico ela vira uma não conformidade com o critério "x", e entra no mesmo cálculo de pendências das demais áreas. */
+const GV={baixa:"Baixa",media:"Média",alta:"Alta",risco:"Risco"},GVK=["baixa","media","alta","risco"];
+const GVH={baixa:"Limpeza ou aparência, sem efeito no uso da área. Só registro.",media:"Afeta conforto ou uso parcial, sem risco imediato. Avise o encarregado responsável.",alta:"Impede o uso de um item ou da área, ou tende a se agravar. Avise o Gerente Predial.",risco:"Pode causar acidente ou dano a pessoas. Avise já o Gerente Predial e o encarregado, sem esperar o fim da ronda."};
+const gvAlto=g=>g==="alta"||g==="risco";
+const nrm=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+const xNome=e=>String(e.nome||"").trim();
+const xIni=e=>!!(xNome(e)||(e.n||"").trim()||e.gv||(e.p||[]).length||e.r==="ok");
+const xAt=()=>(S.x||[]).filter(xIni);
+const xNC=()=>xAt().filter(e=>e.r!=="ok");
+const xNovoE=()=>({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),nome:"",n:"",gv:"",p:[],r:"nc"});
+const xEmArea=e=>AREAS.some(a=>nrm(a)===nrm(xNome(e)));
+const xDup=e=>{const k=nrm(xNome(e));return !!k&&xAt().filter(z=>nrm(xNome(z))===k).length>1};
+const xNovo=e=>!OPENP.some(o=>o.k==="x"&&nrm(o.area)===nrm(xNome(e)));
+const xFoto=e=>gvAlto(e.gv)&&xNovo(e);
+function xNomes(){const m={};hist().forEach(h=>Object.keys(h.st||{}).forEach(a=>{if(h.st[a]&&h.st[a].x!==undefined&&!m[nrm(a)])m[nrm(a)]=a}));return Object.values(m)}
+const xCanon=t=>{const k=nrm(t);if(!k)return String(t||"").trim();return xNomes().find(a=>nrm(a)===k)||nm(t)};
+function xProb(e){
+  if(e.r==="ok")return[];const p=[];
+  if(!xNome(e))p.push("informar o nome da área");else if(xEmArea(e))p.push("trocar o nome (essa área já está na lista)");else if(xDup(e))p.push("juntar em uma só as ocorrências repetidas");
+  if(!(e.n||"").trim())p.push("descrever a ocorrência");
+  if(!e.gv)p.push("escolher a gravidade");
+  if(xFoto(e)&&!(e.p||[]).length)p.push("anexar pelo menos uma foto (gravidade "+GV[e.gv].toLowerCase()+")");
+  return p}
+const xProblemas=()=>xAt().map(e=>{const p=xProb(e);return p.length?"completar a área não listada "+(xNome(e)?"“"+xNome(e)+"”":"(sem nome)")+": "+p.join(", "):""}).filter(Boolean);
 let OPEN=-1;const RPOPEN={};
 /* Respostas prontas: toque para adicionar à observação, toque de novo para tirar. Ajuste os textos conforme a rotina do condomínio. p = o que foi encontrado; a = quem acionar; f = o que foi feito. Chaves l, o, g = Limpeza, Organização, Integridade; x = vale para todos. */
 const RP={
   p:{l:["Sujo, precisa de limpeza","Lixo acumulado","Piso molhado ou sujo","Equipamentos sujos","Mau cheiro"],o:["Itens fora do lugar","Mobiliário desarrumado","Material abandonado","Equipamentos desorganizados"],g:["Lâmpada queimada","Equipamento quebrado","Equipamento fora de uso","Vazamento","Porta ou fechadura com defeito","Piso ou parede danificado","Item faltando"]},
   a:{l:["Equipe de limpeza acionada"],o:["Zeladoria acionada"],g:["Manutenção acionada"],x:["Síndico informado"]},
-  f:{andamento:{l:["Equipe de limpeza acionada","Limpeza agendada"],o:["Zeladoria acionada","Reorganização agendada"],g:["Manutenção acionada","Aguardando peça ou orçamento","Empresa terceirizada acionada"],x:["Síndico informado"]},
-     resolvida:{l:["Limpeza feita pela equipe de limpeza"],o:["Itens reorganizados pela zeladoria"],g:["Reparo feito pela manutenção","Lâmpada trocada","Serviço feito por empresa terceirizada"],x:["Resolvido e confirmado no local"]}}
+  f:{andamento:{l:["Equipe de limpeza acionada","Limpeza agendada"],o:["Zeladoria acionada","Reorganização agendada"],g:["Manutenção acionada","Aguardando peça ou orçamento","Empresa terceirizada acionada"],u:["Manutenção acionada","Equipe de limpeza acionada","Zeladoria acionada","Aguardando peça ou orçamento","Empresa terceirizada acionada"],x:["Síndico informado"]},
+     resolvida:{l:["Limpeza feita pela equipe de limpeza"],o:["Itens reorganizados pela zeladoria"],g:["Reparo feito pela manutenção","Lâmpada trocada","Serviço feito por empresa terceirizada"],u:["Reparo feito pela manutenção","Limpeza feita pela equipe de limpeza","Itens reorganizados pela zeladoria","Serviço feito por empresa terceirizada"],x:["Resolvido e confirmado no local"]}}
 };
 const uniq=a=>[...new Set(a)];
 /* Elevadores por área (15 no total). Toque no botão para dizer qual elevador tem o problema. */
@@ -280,7 +309,7 @@ function build(){
       (a.p||[]).forEach(u=>{const m=new Image();m.src=u;m.alt="Foto de "+nm;ph.appendChild(m)});
       const mk=(txt,cam,multi)=>{const b=document.createElement("button");b.className="addph";b.textContent=txt;
         const f=document.createElement("input");f.type="file";f.accept="image/*";if(cam)f.capture="environment";if(multi)f.multiple=true;f.hidden=true;
-        b.onclick=()=>f.click();f.onchange=()=>{addFiles(i,f.files);f.value=""};return[b,f]};
+        b.onclick=()=>f.click();f.onchange=()=>{addFiles(A(i),f.files);f.value=""};return[b,f]};
       ph.append(...mk("Tirar foto",true,false),...mk("Da galeria",false,true));body.appendChild(x);
     }else{
       const b=document.createElement("button");b.className="lnk";b.textContent="Adicionar observação";
@@ -288,40 +317,126 @@ function build(){
     }
     d.appendChild(body);L.appendChild(d);
   });
+  buildX(L);
   prog();
 }
 const MAXFOTOS=6;
-function addFiles(i,files){
-  const have=(A(i).p||[]).length,room=MAXFOTOS-have,L=[...files].slice(0,Math.max(room,0));
+function addFiles(o,files){
+  const have=(o.p||[]).length,room=MAXFOTOS-have,L=[...files].slice(0,Math.max(room,0));
   if(room<=0){toast("Limite de "+MAXFOTOS+" fotos por área.");return}
   if(files.length>room)toast("Limite de "+MAXFOTOS+" fotos por área. Só as primeiras foram adicionadas.");
   if(!L.length)return;let n=0;const got=[];
-  L.forEach(fl=>shrink(fl,u=>{if(u)got.push(u);if(++n===L.length){if(got.length){A(i).p=(A(i).p||[]).concat(got);save();build()}else toast("Não foi possível ler a imagem escolhida.")}}));
+  L.forEach(fl=>shrink(fl,u=>{if(u)got.push(u);if(++n===L.length){if(got.length){o.p=(o.p||[]).concat(got);save();build()}else toast("Não foi possível ler a imagem escolhida.")}}));
+}
+/* ---- cartão "Outra área (não listada)" ---- */
+let XUPD=[];
+const xCls=()=>"area"+(xNC().length?" bad":xAt().length?" done":"");
+function xSum(sm){
+  const at=xAt(),nc=at.filter(e=>e.r!=="ok").length,ok=at.length-nc;sm.textContent="";
+  const chip=(t,cor)=>{const c=document.createElement("span");c.className="chip";c.textContent=t;if(cor)c.style.color=cor;sm.appendChild(c)};
+  if(!at.length){sm.textContent=OPENP.some(o=>o.k==="x")?"Há pendência aberta. Toque para registrar":"Toque para registrar uma ocorrência";return}
+  if(nc)chip(nc+(nc===1?" ocorrência":" ocorrências"),"var(--bad)");
+  if(ok)chip(ok+(ok===1?" conforme":" conformes"),"var(--ok)");
+  if(xProblemas().length)chip("incompleta","var(--gd)");
+}
+function xSync(){XUPD.forEach(f=>f());const d=$("ax");if(d){d.className=xCls();xSum(d.querySelector(".sum"))}prog()}
+function xEntry(e){
+  const w=document.createElement("div");w.className="xe"+(e.r==="ok"?" ok":" bad");
+  const sp=t=>{const s2=document.createElement("span");s2.className="lb";s2.textContent=t;return s2};
+  const rm=document.createElement("button");rm.className="lnk";rm.style.color="var(--bad)";
+  rm.onclick=()=>{if(e.r!=="ok"&&xIni(e)&&!confirm("Remover esta ocorrência e as fotos dela?"))return;S.x=S.x.filter(z=>z!==e);save();build()};
+  if(e.r==="ok"){
+    const t=document.createElement("b");t.className="sec2";t.style.margin="0";t.textContent=xNome(e)+" — conforme";
+    const h=document.createElement("span");h.className="hint";h.textContent="Área não listada. Ao enviar a ronda, a pendência desta área é encerrada.";
+    rm.textContent="Desfazer";w.append(t,h,rm);return w}
+  const ni=document.createElement("input");ni.type="text";ni.id="xn"+e.id;ni.className="xnm";ni.maxLength=36;ni.autocomplete="off";ni.placeholder="Ex.: Bicicletário";ni.setAttribute("list","xnomes");ni.value=e.nome||"";
+  const nl=document.createElement("label");nl.htmlFor=ni.id;nl.textContent="Nome da área";
+  const nh=document.createElement("span");nh.className="hint er";
+  const ta=document.createElement("textarea");ta.id="xo"+e.id;ta.placeholder="O que foi encontrado? (obrigatório)";ta.value=e.n||"";
+  const ol=document.createElement("label");ol.htmlFor=ta.id;ol.textContent="Ocorrência";ol.style.marginTop="10px";ol.style.display="block";
+  const seg=document.createElement("div");seg.className="seg4";seg.setAttribute("role","group");seg.setAttribute("aria-label","Gravidade");
+  const gh=document.createElement("span");gh.className="hint";
+  const ph=document.createElement("div");ph.className="ph";
+  const fh=document.createElement("span");fh.className="hint";
+  GVK.forEach(g=>{const b=document.createElement("button");b.type="button";b.dataset.g=g;b.textContent=GV[g];b.setAttribute("aria-pressed",String(e.gv===g));
+    b.onclick=()=>{e.gv=g;save();seg.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.g===g)));xSync()};seg.appendChild(b)});
+  const bd=(el,ruim)=>{el.style.borderColor=xIni(e)&&ruim?"var(--bad)":""};
+  XUPD.push(()=>{
+    nh.textContent=xEmArea(e)?"Esta área já está na lista. Use o cartão dela.":xDup(e)?"Já há outra ocorrência com este nome nesta ronda. Junte as duas em uma.":"";
+    bd(ni,!xNome(e)||xEmArea(e)||xDup(e));bd(ta,!(e.n||"").trim());
+    gh.textContent=e.gv?GVH[e.gv]:"Escolha a gravidade conforme o efeito no uso da área.";
+    fh.textContent=xFoto(e)?"Foto obrigatória para esta gravidade.":gvAlto(e.gv)?"Já há pendência aberta nesta área: a foto é opcional.":e.gv==="media"?"Foto recomendada.":e.gv==="baixa"?"Foto opcional.":"A foto é obrigatória nas gravidades alta e risco.";
+    fh.style.color=xFoto(e)&&!(e.p||[]).length?"var(--bad)":"";
+  });
+  ni.oninput=()=>{e.nome=ni.value;save();xSync()};
+  ni.onchange=()=>{const c=xCanon(ni.value);ni.value=c;e.nome=c;save();xSync()};
+  ta.oninput=()=>{e.n=ta.value;save();xSync()};
+  (e.p||[]).forEach(u=>{const m=new Image();m.src=u;m.alt="Foto de "+(xNome(e)||"área não listada");ph.appendChild(m)});
+  [["Tirar foto",true,false],["Da galeria",false,true]].forEach(([t,cam,mu])=>{const b=document.createElement("button");b.className="addph";b.type="button";b.textContent=t;
+    const f=document.createElement("input");f.type="file";f.accept="image/*";if(cam)f.capture="environment";if(mu)f.multiple=true;f.hidden=true;
+    b.onclick=()=>f.click();f.onchange=()=>{addFiles(e,f.files);f.value=""};ph.append(b,f)});
+  rm.textContent="Remover esta ocorrência";
+  w.append(nl,ni,nh,ol);
+  const rows=[chipRow(uniq([].concat(...Object.values(RP.p))),ta,"O que foi encontrado"),chipRow(uniq([].concat(...Object.values(RP.a))),ta,"Quem foi acionado")].filter(Boolean);
+  if(rows.length){const dt=document.createElement("details");dt.className="rp";dt.open=!!RPOPEN[e.id];const s2=document.createElement("summary");s2.textContent="Respostas prontas";dt.appendChild(s2);rows.forEach(r=>dt.appendChild(r));dt.ontoggle=()=>{RPOPEN[e.id]=dt.open};w.appendChild(dt)}
+  w.append(ta,sp("Gravidade"),seg,gh,sp("Fotos"),ph,fh,rm);
+  return w}
+function buildX(L){
+  const open=OPEN==="x",d=document.createElement("div");d.id="ax";XUPD=[];
+  d.innerHTML='<div class="ah"><button class="an" aria-expanded="'+open+'"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+IC.plus+'"/></svg></span><span class="nm"></span><span class="sum"></span><span class="chev" aria-hidden="true"></span></button></div>';
+  d.querySelector(".nm").textContent="Outra área (não listada)";
+  d.className=xCls();xSum(d.querySelector(".sum"));
+  d.querySelector(".an").onclick=()=>{
+    if(OPEN==="x"){OPEN=-1;S.x=(S.x||[]).filter(xIni);save()}else{OPEN="x";if(!(S.x||[]).length){S.x=[xNovoE()];save()}}
+    build();if(OPEN==="x")$("ax").scrollIntoView({block:"start"})};
+  const body=document.createElement("div");body.hidden=!open;
+  if(open){
+    const hp=document.createElement("div");hp.className="hint";hp.style.marginTop="0";
+    hp.textContent="Use quando o problema está numa área que não aparece na lista. Escreva o nome da área, descreva a ocorrência, escolha a gravidade e anexe fotos. Entra como não conformidade e fica nas pendências até ser resolvida.";
+    const dl=document.createElement("datalist");dl.id="xnomes";xNomes().forEach(n=>{const o=document.createElement("option");o.value=n;dl.appendChild(o)});
+    body.append(hp,dl);
+    const feitos=new Set((S.x||[]).filter(xIni).map(e=>nrm(xNome(e))));
+    OPENP.filter(o=>o.k==="x"&&!feitos.has(nrm(o.area))).forEach(o=>{
+      const w=document.createElement("div");w.className="xe bad";
+      const m=document.createElement("div");m.className="hint pendb";m.style.marginTop="0";
+      m.textContent="Pendência aberta desde "+fmtDate(o.since).slice(0,5)+" em "+o.area+(o.gv?" (gravidade "+GV[o.gv].toLowerCase()+")":"")+(o.status==="em andamento"?", em andamento":"")+(o.n?": "+o.n:"");
+      const r=document.createElement("div");r.className="two";
+      [["Segue com o problema",{r:"nc",n:o.n||"",gv:o.gv||""}],["Está conforme agora",{r:"ok"}]].forEach(([t,dd])=>{const b=document.createElement("button");b.className="act s";b.textContent=t;
+        b.onclick=()=>{S.x=(S.x||[]).filter(xIni);S.x.push(Object.assign(xNovoE(),{nome:o.area},dd));save();build()};r.appendChild(b)});
+      w.append(m,r);body.appendChild(w)});
+    (S.x||[]).forEach(e=>body.appendChild(xEntry(e)));
+    const ab=document.createElement("button");ab.className="lnk";ab.textContent=(S.x||[]).length?"Adicionar outra área não listada":"Registrar ocorrência em área não listada";
+    ab.onclick=()=>{if(!(S.x||[]).some(e=>!xIni(e))){S.x=(S.x||[]).concat(xNovoE());save()}build();const ins=document.querySelectorAll("#ax .xnm");if(ins.length)ins[ins.length-1].focus()};
+    body.appendChild(ab);
+    XUPD.forEach(f=>f());
+  }
+  d.appendChild(body);L.appendChild(d);
 }
 function shrink(file,cb,mx){
   if(!file)return;const r=new FileReader();
   r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,(mx||800)/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.65))};i.onerror=()=>cb(null);i.src=r.result};
   r.readAsDataURL(file);
 }
-const nIns=()=>IDX.filter(i=>anyk(S.a[i])).length;
+const nIns=()=>IDX.filter(i=>anyk(S.a[i])).length+xAt().length;
 const semObs=()=>AREAS.filter((_,i)=>S.a[i]&&hasNC(S.a[i])&&!(S.a[i].n||"").trim()).length;
 function faltas(){
   const f=[],sem=semObs(),par=IDX.filter(i=>anyk(S.a[i])&&!fullk(S.a[i]));
   if(!nIns())f.push("vistoriar pelo menos uma área");
   if(par.length)f.push("completar "+(par.length===1?"a área ":"as áreas ")+par.map(i=>AREAS[i]).join(", ")+" (use N/A no critério que não se aplica) ou desmarcá-la");
   if(sem)f.push("descrever "+(sem===1?"a não conformidade":"as "+sem+" não conformidades")+" (campo vermelho)");
+  xProblemas().forEach(t=>f.push(t));
   if(!S.resp.trim())f.push("informar o responsável");
   if(!S.sig)f.push("assinar");
   return f;
 }
 function prog(){
-  const n=nIns(),nc=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])).length,sem=semObs(),ok=faltas().length===0;
+  const n=nIns(),nc=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])).length+xNC().length,sem=semObs(),ok=faltas().length===0;
   $("cnt").textContent=n?n+(n===1?" área vistoriada":" áreas vistoriadas"):"Nenhuma área marcada";
   $("pct").textContent=nc?nc+(nc===1?" não conformidade":" não conformidades"):"";
   $("share").setAttribute("aria-disabled",String(!ok));
   const sl=$("seal");
   if(!n){sl.hidden=true;return}
-  const falta=[IDX.some(i=>anyk(S.a[i])&&!fullk(S.a[i]))?"completar as áreas parcialmente marcadas":"",sem?"descrever "+(sem===1?"a não conformidade":"as "+sem+" não conformidades"):"",!S.resp.trim()?"informar o responsável":"",!S.sig?"assinar":""].filter(Boolean);
+  const falta=[IDX.some(i=>anyk(S.a[i])&&!fullk(S.a[i]))?"completar as áreas parcialmente marcadas":"",sem?"descrever "+(sem===1?"a não conformidade":"as "+sem+" não conformidades"):"",xProblemas().length?"completar as áreas não listadas":"",!S.resp.trim()?"informar o responsável":"",!S.sig?"assinar":""].filter(Boolean);
   sl.hidden=false;sl.classList.toggle("pop",ok);
   $("sealt").textContent=ok?"Pronto para enviar":"Ronda em andamento";
   $("seals").textContent=(nc?nc+(nc===1?" área com não conformidade.":" áreas com não conformidade."):"Nenhuma não conformidade nas áreas vistoriadas.")+(ok?" Pronto para gerar o PDF.":" Falta: "+falta.join(", ")+".");
@@ -357,7 +472,7 @@ function makePdf(sg){
   const room=h=>{if(y+h>276){d.addPage();y=18}};
   const col=k=>k==="ok"?OK:k==="nc"?BAD:[122,122,116];
   const insp=i=>anyk(S.a[i]);
-  const ncs=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])),nc=ncs.length,ins=IDX.filter(insp).length;
+  const fx=xAt(),fxn=fx.filter(e=>e.r!=="ok"),ncs=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])),nc=ncs.length+fxn.length,ins=IDX.filter(insp).length+fx.length;
   const sec=t=>{room(16);d.setFont("times","bold");d.setFontSize(13);d.setTextColor(...V);d.text(t,M,y);y+=2;d.setDrawColor(215);d.setLineWidth(.2);d.line(M,y,W-M,y);y+=7};
   const pics=(ph,x,big)=>{const n=big?3:4,bw=big?56:38,bh=big?42:30,px=big?59:41,py=big?45:33;ph.forEach((u,k)=>{const cx=x+(k%n)*px,cy=y+Math.floor(k/n)*py;d.setDrawColor(225);d.setFillColor(247,246,244);d.rect(cx,cy,bw,bh,"FD");const pr=d.getImageProperties(u),r=Math.min((bw-2)/pr.width,(bh-2)/pr.height),w=pr.width*r,h=pr.height*r;d.addImage(u,"JPEG",cx+(bw-w)/2,cy+(bh-h)/2,w,h)});y+=Math.ceil(ph.length/n)*py};
   y=pdfCab(d,"Checklist diário · Limpeza, organização e integridade das áreas comuns",rondaId());
@@ -368,17 +483,17 @@ function makePdf(sg){
   d.text(nc?nc+(nc===1?" não conformidade":" não conformidades"):"Nenhuma não conformidade",M+5,y+7);
   d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(...V);
   d.text("Data: "+fmtDate(S.dt)+"     Horário: "+S.tm,M+5,y+14);d.text("Responsável: "+S.resp+"     Turno: "+(S.tn||""),M+5,y+20);
-  d.setTextColor(...MU);d.text(ins+(ins===1?" área vistoriada":" áreas vistoriadas"),W-M-5,y+7,{align:"right"});const ok0=ins-nc,nf=IDX.reduce((t,i)=>t+(S.a[i]&&S.a[i].p?S.a[i].p.length:0),0);d.text(ok0+(ok0===1?" sem ocorrência":" sem ocorrências"),W-M-5,y+13,{align:"right"});if(nf)d.text(nf+(nf===1?" foto anexada":" fotos anexadas"),W-M-5,y+19,{align:"right"});
+  d.setTextColor(...MU);d.text(ins+(ins===1?" área vistoriada":" áreas vistoriadas"),W-M-5,y+7,{align:"right"});const ok0=ins-nc,nf=IDX.reduce((t,i)=>t+(S.a[i]&&S.a[i].p?S.a[i].p.length:0),0)+fxn.reduce((t,e)=>t+(e.p||[]).length,0);d.text(ok0+(ok0===1?" sem ocorrência":" sem ocorrências"),W-M-5,y+13,{align:"right"});if(nf)d.text(nf+(nf===1?" foto anexada":" fotos anexadas"),W-M-5,y+19,{align:"right"});
   y+=32;
   /* ocorrências */
   if(nc){
     sec("Ocorrências");
-    ncs.forEach(i=>{
-      const a=S.a[i],cr=critTxt(a);
+    ncs.map(i=>({nome:AREAS[i],cr:critTxt(S.a[i]),n:S.a[i].n||"",p:S.a[i].p||[]})).concat(fxn.map(e=>({nome:xNome(e),cr:"Área não listada · gravidade "+GV[e.gv].toLowerCase(),n:(e.n||"").trim(),p:e.p||[]}))).forEach(a=>{
+      const cr=a.cr;
       const t=d.splitTextToSize(a.n||"",W-2*M-8),ph=a.p||[];
       const h=7+t.length*4.6+(ph.length?Math.ceil(ph.length/3)*45+1:0);
       room(h);const y0=y;
-      d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(...V);d.text(AREAS[i],M+5,y);
+      d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(...V);d.text(a.nome,M+5,y);
       d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(...BAD);d.text(cr,W-M,y,{align:"right"});y+=5.5;
       d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(60);d.text(t,M+5,y);y+=t.length*4.6;
       if(ph.length){y+=1;pics(ph,M+5,true)}
@@ -402,6 +517,10 @@ function makePdf(sg){
     if(ph.length)pics(ph,M+4);
     d.setDrawColor(235);d.line(M,y-.8,W-M,y-.8);y+=2.3;
   });
+  fx.forEach(e=>{const pg0=d.getNumberOfPages();room(6.5);if(d.getNumberOfPages()>pg0)thead();
+    d.setFont("helvetica","normal");d.setFontSize(10.5);d.setTextColor(...V);d.text(d.splitTextToSize(xNome(e),76)[0],M,y);
+    d.setFont("helvetica","bold");d.setFontSize(9.5);d.setTextColor(...col(e.r==="ok"?"ok":"nc"));d.text(e.r==="ok"?"Conforme (área não listada)":"Não conforme · gravidade "+GV[e.gv].toLowerCase()+" (área não listada)",92,y);y+=4.2;
+    d.setDrawColor(235);d.line(M,y-.8,W-M,y-.8);y+=2.3});
   y+=3;
   if(S.obs.trim()){sec("Observações gerais");d.setFont("helvetica","normal");d.setFontSize(10.5);d.setTextColor(...V);const t=d.splitTextToSize(S.obs.trim(),W-2*M);room(t.length*5);d.text(t,M,y);y+=t.length*5+4}
   /* assinatura */
@@ -412,9 +531,10 @@ function makePdf(sg){
   return d.output("blob");
 }
 function resumoTxt(){
-  const l=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])),n=nIns();
+  const xs=xNC(),l=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])).map(i=>"• "+AREAS[i]+" ("+critTxt(S.a[i])+")"+(S.a[i].n?": "+S.a[i].n.trim():"")).concat(xs.map(e=>"• "+xNome(e)+" (área não listada, gravidade "+GV[e.gv].toLowerCase()+")"+(e.n?": "+e.n.trim():""))),n=nIns(),rk=xs.filter(e=>e.gv==="risco").map(xNome);
   return "*Checklist diário L’Essence Mooca* — "+fmtDate(S.dt)+", "+S.tm+(S.tn?" ("+S.tn+")":"")+"\nResponsável: "+S.resp+"\nRonda: "+rondaId()+"\n"+n+(n===1?" área vistoriada":" áreas vistoriadas")+"\n"+
-    (l.length?l.length+(l.length===1?" não conformidade:\n":" não conformidades:\n")+l.map(i=>"• "+AREAS[i]+" ("+critTxt(S.a[i])+")"+(S.a[i].n?": "+S.a[i].n.trim():"")).join("\n"):"Nenhuma não conformidade.");
+    (l.length?l.length+(l.length===1?" não conformidade:\n":" não conformidades:\n")+l.join("\n"):"Nenhuma não conformidade.")+
+    (rk.length?"\nATENÇÃO: gravidade RISCO em "+rk.join(", ")+". Avisar o Gerente Predial e o encarregado.":"");
 }
 $("share").onclick=()=>{
   S.resp=nm(S.resp);$("resp").value=S.resp;save();
@@ -461,7 +581,9 @@ function acoes(){const a=ld(AK)||[],old=ld(RK)||{};
   return a.concat(Object.keys(old).map(k=>({id:"mig-"+k,key:k,dt:old[k],tm:"",st:"resolvida",txt:"Marcada como resolvida (registro anterior).",p:[]})))}
 function archive(){
   const ncs=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])).map(i=>{const a=S.a[i];return{area:AREAS[i],crit:critTxt(a),c:CR.filter(k=>a[k]==="nc"),n:(a.n||"").trim()}});
+  xNC().forEach(e=>ncs.push({area:xNome(e),crit:"área não listada, gravidade "+GV[e.gv].toLowerCase(),c:["x"],n:(e.n||"").trim(),gv:e.gv}));
   const st={};IDX.filter(i=>anyk(S.a[i])).forEach(i=>{const a=S.a[i];st[AREAS[i]]={l:a.l||"",o:a.o||"",g:a.g||""}});
+  xAt().forEach(e=>{st[xNome(e)]=e.r==="ok"?{l:"",o:"",g:"",x:"ok"}:{l:"",o:"",g:"",x:"nc",gv:e.gv}});
   const me=dev(),e={dt:S.dt,tm:S.tm,tn:S.tn||"",resp:S.resp.trim(),ins:Object.keys(st).length,ncs,st,obs:S.obs.trim(),dv:me.id,dn:me.nome};
   const dl=dels(),k0=hkey(e);if(dl.some(z=>z.k===k0))sv(XK,dl.filter(z=>z.k!==k0));
   const h=hist().filter(x=>!(x.dt===e.dt&&(x.tn||"")===e.tn&&(x.dv||me.id)===me.id));h.push(e);h.sort((a,b)=>asc(b,a));if(h.length>HMAX)toast("O histórico passou de "+HMAX+" vistorias e as mais antigas saíram deste aparelho. Faça um backup.",9000);histSave(h.slice(0,HMAX));refreshOpen();
@@ -473,12 +595,12 @@ function cases(until){
   const open={},out=[];
   const manual=(c,antes)=>{const r=(by[c.key]||[]).filter(a=>a.st==="resolvida"&&a.dt>=c.since&&(!antes||a.dt<antes)).sort(asc)[0];if(r){c.closedAt=r.dt;c.via="manual";return true}return false};
   H.forEach(x=>{
-    const nc={};(x.ncs||[]).forEach(n=>(n.c||[]).forEach(k=>{nc[n.area+"|"+k]=n.n}));
-    Object.keys(x.st||{}).forEach(ar=>CR.forEach(k=>{
+    const nc={},gm={};(x.ncs||[]).forEach(n=>(n.c||[]).forEach(k=>{nc[n.area+"|"+k]=n.n;if(n.gv)gm[n.area+"|"+k]=n.gv}));
+    Object.keys(x.st||{}).forEach(ar=>CRX.forEach(k=>{
       const key=ar+"|"+k,v=x.st[ar][k];let c=open[key];
       if(c&&manual(c,x.dt)){out.push(c);delete open[key];c=null}
       if(v==="ok"){if(c){c.closedAt=x.dt;c.via="vistoria";out.push(c);delete open[key]}}
-      else if(v==="nc"){c=open[key]||(open[key]={key,area:ar,k,since:x.dt,days:0});if(c.last!==x.dt)c.days++;c.last=x.dt;c.n=nc[key]||c.n||""}
+      else if(v==="nc"){c=open[key]||(open[key]={key,area:ar,k,since:x.dt,days:0});if(c.last!==x.dt)c.days++;c.last=x.dt;c.n=nc[key]||c.n||"";c.gv=gm[key]||c.gv||""}
     }));
   });
   Object.values(open).forEach(c=>{manual(c);out.push(c)});
@@ -537,7 +659,7 @@ function pdfKit(d){
     const ph=[].concat(...ac.map(a=>a.p||[])).slice(0,3);
     const h=6+l1.length*4.4+ln.length*4.4+la.reduce((s,l)=>s+l.length*4.4,0)+(ph.length?26:0)+5;
     K.room(h);const y0=K.y;
-    d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(26,26,26);d.text(c.area+" — "+CN[c.k]+(K.mark?"  ·  mais antiga":""),M+5,K.y);K.y+=5.5;
+    d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(26,26,26);d.text(c.area+" — "+CN[c.k]+(c.gv?" · gravidade "+GV[c.gv].toLowerCase():"")+(K.mark?"  ·  mais antiga":""),M+5,K.y);K.y+=5.5;
     d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(90,90,90);d.text(l1,M+5,K.y);K.y+=l1.length*4.4;
     if(ln.length){d.text(ln,M+5,K.y);K.y+=ln.length*4.4}
     d.setTextColor(40,40,40);la.forEach(l=>{d.text(l,M+9,K.y);K.y+=l.length*4.4});
@@ -607,7 +729,7 @@ function formAcao(c,done){
   [["andamento","Em andamento"],["resolvida","Resolvida"]].forEach(([v,tx])=>{const b=document.createElement("button");b.textContent=tx;b.dataset.s=v;b.setAttribute("aria-pressed",String(v===st));
     b.onclick=()=>{st=v;seg.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.s===st)));fillQ()};seg.appendChild(b)});
   const ta=document.createElement("textarea");ta.placeholder="O que foi feito? (obrigatório)";
-  const qw=document.createElement("div");function fillQ(){qw.innerHTML="";const r=chipRow(RP.f[st][c.k].concat(RP.f[st].x),ta,"Respostas prontas (toque para adicionar)");if(r)qw.appendChild(r)}fillQ();
+  const qw=document.createElement("div");function fillQ(){qw.innerHTML="";const r=chipRow(RP.f[st][c.k==="x"?"u":c.k].concat(RP.f[st].x),ta,"Respostas prontas (toque para adicionar)");if(r)qw.appendChild(r)}fillQ();
   const dt=document.createElement("input");dt.type="date";dt.value=today();dt.max=today();
   const ph=document.createElement("div");ph.className="ph";
   const draw=()=>{ph.innerHTML="";fotos.forEach(u=>{const i=new Image();i.src=u;i.alt="Foto da providência";ph.appendChild(i)});
@@ -634,6 +756,7 @@ function cardCase(c,comForm){
   const r=document.createElement("div");r.className="area "+(c.closedAt?"done":c.status==="em andamento"?"wip":"bad");r.style.marginTop="8px";
   const t=document.createElement("b");t.textContent=c.area+" — "+CN[c.k]+" ";
   const bd=document.createElement("span");bd.className="badge";bd.textContent=c.status;t.appendChild(bd);
+  if(c.gv){const g2=document.createElement("span");g2.className="badge";g2.style.marginLeft="6px";g2.textContent="gravidade "+GV[c.gv].toLowerCase();if(gvAlto(c.gv)){g2.style.color="var(--bad)";g2.style.borderColor="var(--bad)"}t.appendChild(g2)}
   const sm=document.createElement("div");sm.className="hint";sm.textContent=linhaCaso(c);
   r.append(t,sm);
   const ph=[].concat(...(c.acoes||[]).map(a=>a.p||[])).slice(0,3);
@@ -659,7 +782,7 @@ function pdfHist(x){
   K.txt(Object.keys(st).length+(Object.keys(st).length===1?" área vistoriada":" áreas vistoriadas")+" · "+(l.length?l.length+(l.length===1?" não conformidade":" não conformidades"):"nenhuma não conformidade"),{font:"bold",color:l.length?[185,60,60]:[47,125,79],gap:3});
   if(l.length){K.sec("Ocorrências");l.forEach(n=>{K.txt(n.area+" — "+n.crit,{font:"bold",size:10.5,color:[26,26,26]});K.txt(n.n||"Sem observação registrada.",{gap:3})})}
   K.sec("Registro por área");
-  Object.keys(st).forEach(a=>K.txt(a+" — "+CR.map(k=>CN[k]+": "+(LBL[st[a][k]]||"não vistoriado")).join(" · "),{size:9.5,lh:4.4,gap:1}));
+  Object.keys(st).forEach(a=>K.txt(a+" — "+(st[a].x?"Área não listada: "+(LBL[st[a].x]||"")+(st[a].gv?" · gravidade "+GV[st[a].gv].toLowerCase():""):CR.map(k=>CN[k]+": "+(LBL[st[a][k]]||"não vistoriado")).join(" · ")),{size:9.5,lh:4.4,gap:1}));
   if(x.obs){K.sec("Observações gerais");K.txt(x.obs)}
   K.y+=4;K.txt("2ª via gerada a partir do histórico do aplicativo: não contém fotos nem assinatura. O PDF original, com fotos e assinatura, é o que foi enviado na data da vistoria.",{font:"italic",size:9,color:[107,107,107]});
   pdfRodape(d,"L’Essence Mooca · "+id+" · 2ª via");
@@ -700,13 +823,13 @@ function renderHist(){
 }
 function buildPkg(){
   const m=$("hm").value,[y,mm]=m.split("-"),st=statsMes(m),L=st.L,g={};
-  L.forEach(x=>x.ncs.forEach(n=>{(g[n.area]=g[n.area]||{area:n.area,ev:[]}).ev.push({dt:x.dt,c:n.crit,n:n.n})}));
+  L.forEach(x=>x.ncs.forEach(n=>{(g[n.area]=g[n.area]||{area:n.area,ev:[]}).ev.push({dt:x.dt,c:n.crit,n:n.n,gv:n.gv})}));
   const prov=a=>st.all.filter(c=>c.area===a).flatMap(c=>c.acoes||[]).sort(asc).map(x=>fmtDate(x.dt).slice(0,5)+" "+(x.st==="resolvida"?"resolvida":"em andamento")+": "+x.txt);
   const sit=a=>{const o=st.abertas.filter(c=>c.area===a);return o.length?(o.some(c=>c.status==="em andamento")?"progress":"pending"):"done"};
   const svc=Object.values(g).map((v,i)=>{const pv=prov(v.area);return{id:"nc"+(i+1),title:v.area,
     desc:"Não conformidade em "+v.ev.length+(v.ev.length===1?" dia":" dias")+": "+v.ev.map(e=>fmtDate(e.dt).slice(0,5)+" "+e.c.toLowerCase()+(e.n?" ("+e.n+")":"")).join("; ")+"."+(pv.length?" Providências: "+pv.join("; ")+".":""),
-    status:sit(v.area),priority:v.ev.length>=3?"high":"normal",photos:[]}});
-  st.abertas.filter(o=>!g[o.area]).forEach((o,j)=>svc.push({id:"pa"+(j+1),title:o.area,desc:"Pendência em aberto desde "+fmtDate(o.since).slice(0,5)+" ("+CN[o.k].toLowerCase()+")"+(o.n?": "+o.n:"")+"."+(o.acoes.length?" Última providência: "+o.acoes[o.acoes.length-1].txt+".":""),status:o.status==="em andamento"?"progress":"pending",priority:o.days>=3?"high":"normal",photos:[]}));
+    status:sit(v.area),priority:(v.ev.length>=3||v.ev.some(e=>gvAlto(e.gv)))?"high":"normal",photos:[]}});
+  st.abertas.filter(o=>!g[o.area]).forEach((o,j)=>svc.push({id:"pa"+(j+1),title:o.area,desc:"Pendência em aberto desde "+fmtDate(o.since).slice(0,5)+" ("+CN[o.k].toLowerCase()+")"+(o.n?": "+o.n:"")+"."+(o.acoes.length?" Última providência: "+o.acoes[o.acoes.length-1].txt+".":""),status:o.status==="em andamento"?"progress":"pending",priority:(o.days>=3||gvAlto(o.gv))?"high":"normal",photos:[]}));
   if(!svc.length)svc.push({id:"nc0",title:"Vistorias diárias das áreas comuns",desc:"Nenhuma não conformidade registrada em "+L.length+(L.length===1?" vistoria":" vistorias")+" no mês.",status:"done",priority:"normal",photos:[]});
   return{type:"worker_package",origem:"checklist-lessence",condoName:"L’Essence Mooca",month:MESES[+mm-1],year:y,
     sections:[{id:"vistoria-diaria",title:"VISTORIA DIÁRIA — ÁREAS COMUNS",type:"execution",services:svc,photos:[],nextActions:""}]};
@@ -755,7 +878,7 @@ function bkrem(){const n=hist().length+(ld(AK)||[]).length,b=KV.get("lessence-ba
 function home(){stale();bkrem();$("dvrem").hidden=!!dev().nome;refreshOpen();const h=new Date().getHours(),n=nIns();$("hi").textContent=h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";
   $("hs").textContent=n?"Em andamento: "+n+(n===1?" área vistoriada":" áreas vistoriadas"):"Limpeza, organização e integridade";const hc=hist().length;$("hh").textContent=(OPENP.length?OPENP.length+(OPENP.length===1?" pendência aberta · ":" pendências abertas · "):"")+(hc?hc+(hc===1?" vistoria guardada":" vistorias guardadas"):"Nenhuma vistoria enviada ainda")}
 function show(v){$("home").hidden=v!=="home";$("app").hidden=v!=="app";$("hist").hidden=v!=="hist";$("back").hidden=v==="home";document.querySelector("header").classList.toggle("compact",v!=="home");if(v==="home")home();else if(v==="app"){sizeSig();window.scrollTo(0,0)}else{renderHist();window.scrollTo(0,0)}}
-const hasProg=()=>Object.keys(S.a).length>0||!!S.obs||!!S.sig;
+const hasProg=()=>Object.keys(S.a).length>0||xAt().length>0||!!S.obs||!!S.sig;
 function stale(){const old=S.dt!==today()&&hasProg();$("stale").hidden=!old;if(old)$("staled").textContent=fmtDate(S.dt)}
 $("stopen").onclick=()=>show("app");
 $("stnew").onclick=()=>{if(confirm("Apagar o rascunho de "+fmtDate(S.dt)+" e começar um novo?")){S=Object.assign(fresh(),{resp:S.resp});save();fill();clearSig();build();home()}};

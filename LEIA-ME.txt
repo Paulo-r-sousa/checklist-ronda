@@ -47,3 +47,18 @@ O QUE TEM NESTA PASTA
     registros de um aparelho.
   - Testado em Chromium com tela de celular simulada. Confirme em um Android e em um iPhone reais (câmera,
     compartilhamento de arquivo e PDF em outros leitores) antes de distribuir.
+
+7) NOVIDADE DA v17: "OUTRA ÁREA (NÃO LISTADA)"
+  - No fim da lista de áreas há o cartão "Outra área (não listada)". Ao tocar, o inspetor digita o nome da área, descreve
+    a ocorrência, escolhe a gravidade (Baixa, Média, Alta ou Risco) e anexa fotos (até 6 por ocorrência). Dá para registrar
+    mais de uma área não listada na mesma ronda.
+  - Entra como não conforme, no PDF da ronda, no resumo do WhatsApp, no histórico, nas pendências e no relatório mensal,
+    como as demais áreas. Gravidade Risco acrescenta um aviso no resumo do WhatsApp.
+  - Foto: obrigatória nas gravidades Alta e Risco no primeiro registro da área; se já existe pendência aberta nessa área,
+    a foto passa a ser opcional nos registros seguintes.
+  - Acompanhamento: a pendência fica aberta até ser encerrada. No cartão, cada pendência aberta de área não listada tem
+    os botões "Segue com o problema" e "Está conforme agora" (este encerra a pendência ao enviar a ronda). Também dá para
+    encerrar em Histórico > Registrar providência.
+  - O nome da área é a chave do acompanhamento: o app reaproveita o nome já usado (ignora acento e maiúsculas) e sugere os
+    nomes anteriores. Não aceita um nome que já está na lista de áreas.
+  - Os dados da v15 continuam valendo: rascunho, histórico, pendências e backups antigos abrem normalmente.
