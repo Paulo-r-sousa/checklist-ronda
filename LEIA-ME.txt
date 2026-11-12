@@ -62,3 +62,49 @@ O QUE TEM NESTA PASTA
   - O nome da área é a chave do acompanhamento: o app reaproveita o nome já usado (ignora acento e maiúsculas) e sugere os
     nomes anteriores. Não aceita um nome que já está na lista de áreas.
   - Os dados da v15 continuam valendo: rascunho, histórico, pendências e backups antigos abrem normalmente.
+
+8) NOVIDADE DA v18 (correções)
+  - Assinatura: um toque sem traçar não conta mais como assinada. Só vale com traço.
+  - Duas rondas no mesmo dia, turno e aparelho feitas por responsáveis diferentes não se sobrescrevem mais. Reenviar a
+    ronda do MESMO responsável continua substituindo a anterior (serve para corrigir).
+  - Área com observação ou fotos mas sem critérios marcados agora impede o envio, com aviso (antes sumia do PDF sem aviso).
+  - Importar histórico valida o arquivo: registros malformados são ignorados e contados na mensagem, sem quebrar a tela.
+  - Este pacote inclui o botão "Limpar registro de exclusões". Atenção: ele apaga o rastro das exclusões que o relatório
+    mensal mostra. Decida se mantém, restringe ao uso com PIN ou remove.
+
+9) v19: removida a menção a "zeladoria" das respostas prontas (o condomínio não tem zelador). "Zeladoria acionada" virou
+  "Gerente Predial acionado" e "Itens reorganizados pela zeladoria" virou "Itens reorganizados".
+
+10) v20: RESPOSTAS PRONTAS POR AMBIENTE
+  - Ao marcar Não conforme, o cartão mostra, dentro de "Respostas prontas": Qual item?, O que foi encontrado (frases próprias do ambiente:
+    Academia, Piscinas, Jacuzzi/SPA, Halls e elevadores, Churrasqueiras, Salões, Espaço Jovem, Brinquedoteca, quadras e campos),
+    Quem foi comunicado (inclui empresa de elevadores, da piscina e de equipamentos) e Estado da área.
+  - Espaço PAT e "Outra área" usam as respostas gerais até haver levantamento do local.
+  - Frases de risco (cheiro de gás, fiação exposta, peça solta em brinquedo, quina exposta, cabo de aço desgastado, portão sem trava,
+    ralo danificado, trave solta, pessoa presa no elevador) mostram a orientação na hora e acrescentam ATENÇÃO no resumo do WhatsApp.
+  - Comunicar não é o mesmo que resolver: as frases de quem foi comunicado ficam separadas das providências.
+  - Para editar frases: constantes RP, LIB, RISCO e ESTADO no início do script do index.html. Suba VERSAO no sw.js a cada alteração.
+
+11) v21: refinamento visual (mais espaço, sombras suaves, ícones em círculo dourado discreto, botões de status neutros até a escolha,
+  chips em formato de pílula, rodapé translúcido). Em "Respostas prontas", "Quem foi comunicado" e "Estado da área" ficam recolhidos
+  em "Comunicação e estado da área", para a tela mostrar só o essencial.
+
+12) v22: o botão "Limpar registro de exclusões" só funciona com PIN definido (Histórico > Proteção). Sem PIN, o app recusa e orienta
+  a definir um. Isso evita que o rastro de exclusões do relatório mensal seja apagado por qualquer pessoa. Nenhuma outra mudança em relação à v21.
+
+13) v23: PDF DA RONDA COM VISUAL DE ALTO PADRÃO
+  - Cabeçalho escuro com monograma dourado, nome do condomínio e identificação da ronda.
+  - Resumo em cartão (data, horário, turno, responsável) e faixa de indicadores: áreas vistoriadas, sem ocorrência,
+    não conformes e fotos anexadas.
+  - Ocorrências em cartões, com faixa lateral e selo do critério (Limpeza, Organização, Integridade). Área não listada usa a cor da
+    gravidade. Frases de risco mostram o selo ATENÇÃO.
+  - Registro por área em tabela com linhas alternadas e indicadores coloridos; o cabeçalho da tabela se repete a cada página.
+  - Assinatura com a identificação e o registro da ronda. A partir da 2ª página há um cabeçalho discreto e filete dourado.
+  - O mesmo cabeçalho, rodapé e títulos de seção valem para o relatório mensal e para a 2ª via do histórico.
+  - Nada mudou nos dados: rascunhos, histórico e backups da v17 em diante abrem normalmente.
+
+14) v24: DATAS NO PADRÃO BRASILEIRO
+  - Os campos Data da vistoria, Data da providência e Mês passam a mostrar dd/mm/aaaa (e mm/aaaa), e o Horário em 24 h, mesmo que o celular
+    esteja com idioma inglês. Antes eles seguiam o idioma do aparelho e apareciam como mm/dd/aaaa. O seletor de calendário continua o do aparelho.
+  - Só a exibição mudou: os dados salvos, backups e PDFs continuam iguais.
+
