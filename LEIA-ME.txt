@@ -89,22 +89,41 @@ O QUE TEM NESTA PASTA
   chips em formato de pílula, rodapé translúcido). Em "Respostas prontas", "Quem foi comunicado" e "Estado da área" ficam recolhidos
   em "Comunicação e estado da área", para a tela mostrar só o essencial.
 
-12) v22: o botão "Limpar registro de exclusões" só funciona com PIN definido (Histórico > Proteção). Sem PIN, o app recusa e orienta
-  a definir um. Isso evita que o rastro de exclusões do relatório mensal seja apagado por qualquer pessoa. Nenhuma outra mudança em relação à v21.
+12) v22: SOBRESSOLOS E COBERTURA
+  - 17 áreas novas, em seções próprias: Sobressolo S1 (garagem, sala de monitoramento, gerador, vestiários e copa, lixeiras),
+    Sobressolo S2 (garagem, reservatórios inferiores, depósitos da manutenção, centros de medição/DG/quadros, bombas de recalque,
+    controles de acesso de veículos, pedestres e entregas, sala de encomendas) e Cobertura (casa de máquinas, barriletes e
+    reservatórios superiores, com seleção da torre).
+  - Áreas técnicas: as respostas descrevem só o que se vê da porta (sem abrir quadros nem operar equipamentos). Itens como cheiro de
+    combustível, cheiro de queimado e quadro aberto são tratados como risco.
+  - A sala de monitoramento é vistoriada como ambiente (limpeza, organização, equipamentos), nunca como avaliação dos funcionários.
+  - Rascunhos e históricos antigos continuam válidos: as áreas novas foram acrescentadas ao fim da lista.
 
-13) v23: PDF DA RONDA COM VISUAL DE ALTO PADRÃO
-  - Cabeçalho escuro com monograma dourado, nome do condomínio e identificação da ronda.
-  - Resumo em cartão (data, horário, turno, responsável) e faixa de indicadores: áreas vistoriadas, sem ocorrência,
-    não conformes e fotos anexadas.
-  - Ocorrências em cartões, com faixa lateral e selo do critério (Limpeza, Organização, Integridade). Área não listada usa a cor da
-    gravidade. Frases de risco mostram o selo ATENÇÃO.
-  - Registro por área em tabela com linhas alternadas e indicadores coloridos; o cabeçalho da tabela se repete a cada página.
-  - Assinatura com a identificação e o registro da ronda. A partir da 2ª página há um cabeçalho discreto e filete dourado.
-  - O mesmo cabeçalho, rodapé e títulos de seção valem para o relatório mensal e para a 2ª via do histórico.
-  - Nada mudou nos dados: rascunhos, histórico e backups da v17 em diante abrem normalmente.
+13) v23: ÁREAS TÉCNICAS FICAM COM A MANUTENÇÃO
+  - Saíram do checklist: gerador, reservatórios inferiores e superiores, depósitos da manutenção, centros de medição/DG/quadros elétricos,
+    bombas de recalque, casa de máquinas e barriletes. A seção "Cobertura das torres" deixou de existir.
+  - Permanecem no Sobressolo S1: Garagem S1, Sala de monitoramento, Vestiários e copa, Lixeiras. No Sobressolo S2: Garagem S2,
+    controles de acesso de veículos, pedestres e entregas, e Sala de encomendas.
+  - Se algum item técnico precisar ser registrado numa ronda, use "Outra área (não listada)".
 
-14) v24: DATAS NO PADRÃO BRASILEIRO
-  - Os campos Data da vistoria, Data da providência e Mês passam a mostrar dd/mm/aaaa (e mm/aaaa), e o Horário em 24 h, mesmo que o celular
-    esteja com idioma inglês. Antes eles seguiam o idioma do aparelho e apareciam como mm/dd/aaaa. O seletor de calendário continua o do aparelho.
-  - Só a exibição mudou: os dados salvos, backups e PDFs continuam iguais.
+14) v24: RELATÓRIO EXECUTIVO DO MÊS (PDF de 2 páginas), em Histórico > "Relatório executivo do mês"
+  - Página 1: situação geral (semáforo), conformidade, dias com vistoria, pendências abertas, pendências com mais de 30 dias, ocorrências de
+    risco, tendência de conformidade dos últimos 6 meses, pendências por idade, destaques automáticos e as pendências mais antigas.
+  - Página 2: todas as áreas, inclusive as sem vistoria, com vistorias, % conforme, problemas, pendências abertas e semáforo.
+  - Metas provisórias (conformidade 95%, nenhuma pendência com +30 dias). Ainda não calcula cobertura prevista, prazo por pendência nem
+    gravidade estruturada. Os números dependem de os históricos de todos os aparelhos terem sido importados.
+  - O relatório anterior continua disponível como "Relatório detalhado para o Gerente Predial".
 
+15) v25
+  - "Relatório do mês para o Gerente Predial" refeito no formato: resumo em linguagem direta, pendências que precisam de decisão (com campos
+    Decisão, Responsável e Prazo para preencher na reunião), resolvido no mês, ainda em aberto (O QUE FOI VISTO / O QUE FOI FEITO, com foto da
+    primeira ocorrência), áreas vistoriadas sem problema, observações das rondas e visto. O relatório executivo continua separado.
+  - A foto da primeira ocorrência de cada situação nova passa a ficar guardada no histórico (só na primeira vez, para não pesar).
+  - Academia: seletor "Qual equipamento?" com os 31 equipamentos da planilha de manutenção (22/10/2026), agrupados em Cardio, Musculação,
+    Barras e bancos e Sala e acessórios. Equipamentos repetidos foram numerados (Esteira 1 e 2, Bicicleta spinning 1 e 2, Bicicleta vertical 1
+    e 2, Banco articulado 1 e 2). Confirme a numeração física e identifique cada aparelho com etiqueta.
+
+16) v26: os equipamentos da Academia agora aparecem com o número da etiqueta (ex.: "0061 · Esteira (RT250 iLED)"), igual ao colado
+  em cada aparelho e à numeração da planilha de manutenção (N. 60 a 90 = etiquetas 0060 a 0090). A numeração 1/2 usada na v25 foi substituída.
+  Etiquetas conferidas nas fotos: 0061, 0062, 0064, 0065, 0067, 0068, 0071, 0074, 0075, 0076, 0077, 0078, 0079, 0081, 0085 e 0089.
+  As demais seguem o mesmo padrão e devem ser conferidas no local.

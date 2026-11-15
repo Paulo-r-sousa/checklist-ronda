@@ -34,8 +34,6 @@ main{max-width:640px;margin:0 auto;padding:0 12px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 label,.lb{font-size:13px;color:var(--mut);font-weight:600;display:block;margin-bottom:3px}
 input[type=text],input[type=date],input[type=time],select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:44px}
-.brw{position:relative}.brw input{color:transparent;-webkit-text-fill-color:transparent;text-align:left}.brw input::-webkit-datetime-edit{opacity:0}
-.brs{position:absolute;left:11px;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;color:var(--ink);font:inherit}.brs.ph{color:var(--mut)}
 textarea{min-height:64px;resize:vertical}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 0 8px;margin-top:6px}
 .bar .t{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--mut);margin-bottom:5px}
@@ -169,7 +167,8 @@ input[type=text],input[type=date],input[type=time],input[type=month],select,text
   <section class="box"><b class="sec2">Proteção para excluir</b><div class="stack"><button class="act s" id="pinbtn" style="max-width:none"></button><button class="act s" id="xclr" style="max-width:none">Limpar registro de exclusões</button></div><span class="hint">Com PIN, só quem o conhece exclui vistorias. Mesmo sem PIN, toda exclusão fica registrada e aparece no relatório para o Gerente Predial. O registro de exclusões pode ser limpo pelo botão acima (pede o PIN, se houver), mas isso apaga o rastro: use só para descartar testes. O PIN evita exclusão por engano ou por curiosidade, mas quem limpar os dados do navegador ainda apaga tudo; por isso faça backups.</span></section>
   <section class="box"><b class="sec2">Enviar e guardar</b>
     <div class="stack">
-      <button class="act p" id="hrel" style="max-width:none">Relatório do período para o Gerente Predial (PDF)</button>
+      <button class="act p" id="hexec" style="max-width:none">Relatório executivo do mês (PDF)</button>
+      <button class="act s" id="hrel" style="max-width:none">Relatório do mês para o Gerente Predial (PDF)</button>
       <button class="act s" id="hexp" style="max-width:none">Pacote para o relatório mensal (.json)</button>
       <button class="act s" id="hbak" style="max-width:none">Backup deste aparelho (arquivo)</button>
       <button class="act s" id="hres" style="max-width:none">Importar histórico de outro aparelho</button>
@@ -224,11 +223,12 @@ const KV=(()=>{
 })();
 (async()=>{
 await KV.init();
-const AREAS=["Academia","Piscina coberta","Hall e elevadores – Torre A","Hall e elevadores – Torre B","Hall e elevadores – Torre C","Hall e elevadores – Torre D","Churrasqueira B/D","Churrasqueira Salão Gourmet","Salão de Festas Gourmet","Salão de Festas Adulto","Salão de Festas Infantil","Espaço Jovem","Campo de grama sintética grande","Brinquedoteca","Quadra de Areia","Quadra de Tênis","Quadra Poliesportiva","Espaço PAT","Lobby de entrada e elevador","Piscina descoberta adulto","Piscina descoberta infantil","Jacuzzi","SPA","Campo de grama sintética pequeno","Churrasqueira próximo às quadras"];
+const SEC={S1:["Garagem S1","Sala de monitoramento","Vestiários e copa dos funcionários","Lixeiras (orgânicos, recicláveis e pilhas)"],S2:["Garagem S2","Controle de acesso de veículos","Controle de acesso de pedestres","Controle de acesso para entregas","Sala de encomendas"]};
+const AREAS=["Academia","Piscina coberta","Hall e elevadores – Torre A","Hall e elevadores – Torre B","Hall e elevadores – Torre C","Hall e elevadores – Torre D","Churrasqueira B/D","Churrasqueira Salão Gourmet","Salão de Festas Gourmet","Salão de Festas Adulto","Salão de Festas Infantil","Espaço Jovem","Campo de grama sintética grande","Brinquedoteca","Quadra de Areia","Quadra de Tênis","Quadra Poliesportiva","Espaço PAT","Lobby de entrada e elevador","Piscina descoberta adulto","Piscina descoberta infantil","Jacuzzi","SPA","Campo de grama sintética pequeno","Churrasqueira próximo às quadras",...SEC.S1,...SEC.S2];
 /* A ronda não precisa cobrir todas as áreas: outras equipes também rondam o condomínio. Só entram no PDF as áreas marcadas; área em branco não é falta. */
 const IDX=AREAS.map((_,i)=>i),ORDER=(()=>{const AF={"Churrasqueira Salão Gourmet":["Churrasqueira próximo às quadras"],"Campo de grama sintética grande":["Campo de grama sintética pequeno"],"Hall e elevadores – Torre D":["Lobby de entrada e elevador"],"Piscina coberta":["Piscina descoberta adulto","Piscina descoberta infantil","Jacuzzi","SPA"]},mv=[].concat(...Object.values(AF)).map(n=>AREAS.indexOf(n)),o=IDX.filter(i=>!mv.includes(i));Object.keys(AF).forEach(k=>{const t=o.indexOf(AREAS.indexOf(k));o.splice(t<0?o.length:t+1,0,...AF[k].map(n=>AREAS.indexOf(n)))});return o})();
-const IC={gym:"M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11",pool:"M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2.5-1.5 4.5-1.5S19 15 21 15M3 19.5c2 0 2-1.5 4.5-1.5s2.5 1.5 4.5 1.5 2.5-1.5 4.5-1.5 2.5 1.5 4.5 1.5M8 11V5a2 2 0 0 1 4 0M14 11V5",elev:"M5 3h14v18H5zM12 3v18M8.5 10l1.5-2 1.5 2M12.5 14l1.5 2 1.5-2",grill:"M4 10h16a8 8 0 0 1-16 0zM8 21l2-3M16 21l-2-3M9 6c0-1.5 1.5-1.5 1.5-3M14 6c0-1.5 1.5-1.5 1.5-3",party:"M7 3h10l-1 7a4 4 0 0 1-8 0zM12 14v7M8.5 21h7",game:"M7 9h10a4 4 0 0 1 4 4v1a3 3 0 0 1-5.2 2L14 14h-4l-1.8 2A3 3 0 0 1 3 14v-1a4 4 0 0 1 4-4zM8 11.5v3M6.5 13h3M15.5 12.5h.01M17.5 14h.01",toy:"M4 13h7v7H4zM13 13h7v7h-7zM8.5 5h7v7h-7z",sand:"M12 8m-3 0a3 3 0 1 0 6 0 3 3 0 1 0-6 0M3 19c3-5 6-5 9-1s6 3 9-2M12 2v1.5M5 5l1 1M19 5l-1 1",tennis:"M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M5 5.5c3 2 3 11 0 13M19 5.5c-3 2-3 11 0 13",court:"M3 6h18v12H3zM12 6v12M3 10h3v4H3M21 10h-3v4h3",home:"M12 3l9 7v10H3V10zM9 20v-6h6v6",plus:"M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 8v8M8 12h8"};
-function ico(n){const k=/academia/i.test(n)?"gym":/piscina|jacuzzi|^spa$/i.test(n)?"pool":/hall|elevador/i.test(n)?"elev":/churrasq/i.test(n)?"grill":/sal[aã]o/i.test(n)?"party":/jovem/i.test(n)?"game":/brinqued/i.test(n)?"toy":/areia/i.test(n)?"sand":/t[eê]nis/i.test(n)?"tennis":/quadra|campo/i.test(n)?"court":"home";return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+IC[k]+'"/></svg>'}
+const IC={gym:"M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11",pool:"M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2.5-1.5 4.5-1.5S19 15 21 15M3 19.5c2 0 2-1.5 4.5-1.5s2.5 1.5 4.5 1.5 2.5-1.5 4.5-1.5 2.5 1.5 4.5 1.5M8 11V5a2 2 0 0 1 4 0M14 11V5",elev:"M5 3h14v18H5zM12 3v18M8.5 10l1.5-2 1.5 2M12.5 14l1.5 2 1.5-2",grill:"M4 10h16a8 8 0 0 1-16 0zM8 21l2-3M16 21l-2-3M9 6c0-1.5 1.5-1.5 1.5-3M14 6c0-1.5 1.5-1.5 1.5-3",party:"M7 3h10l-1 7a4 4 0 0 1-8 0zM12 14v7M8.5 21h7",game:"M7 9h10a4 4 0 0 1 4 4v1a3 3 0 0 1-5.2 2L14 14h-4l-1.8 2A3 3 0 0 1 3 14v-1a4 4 0 0 1 4-4zM8 11.5v3M6.5 13h3M15.5 12.5h.01M17.5 14h.01",toy:"M4 13h7v7H4zM13 13h7v7h-7zM8.5 5h7v7h-7z",sand:"M12 8m-3 0a3 3 0 1 0 6 0 3 3 0 1 0-6 0M3 19c3-5 6-5 9-1s6 3 9-2M12 2v1.5M5 5l1 1M19 5l-1 1",tennis:"M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M5 5.5c3 2 3 11 0 13M19 5.5c-3 2-3 11 0 13",court:"M3 6h18v12H3zM12 6v12M3 10h3v4H3M21 10h-3v4h3",home:"M12 3l9 7v10H3V10zM9 20v-6h6v6",plus:"M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 8v8M8 12h8",car:"M5 16v-5l2-5h10l2 5v5M3 16h18M7 19v-3M17 19v-3M7.5 12.5h.01M16.5 12.5h.01",screen:"M3 5h18v11H3zM8 20h8M12 16v4",bolt:"M13 2L5 14h6l-1 8 8-12h-6z",drop:"M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z",trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6",box:"M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8",key:"M14.5 9.5m-4 0a4 4 0 1 0 8 0 4 4 0 1 0-8 0M11.7 12.3L4 20M7 17l2 2",gear:"M12 12m-3 0a3 3 0 1 0 6 0 3 3 0 1 0-6 0M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"};
+function ico(n){const k=/garagem/i.test(n)?"car":/monitoramento/i.test(n)?"screen":/gerador|centros de medi|quadros/i.test(n)?"bolt":/reservat|bomba/i.test(n)?"drop":/lixeira/i.test(n)?"trash":/encomenda|dep[oó]sito/i.test(n)?"box":/controle de acesso/i.test(n)?"key":/casa de m|barrilete/i.test(n)?"gear":/academia/i.test(n)?"gym":/piscina|jacuzzi|^spa$/i.test(n)?"pool":/hall|elevador/i.test(n)?"elev":/churrasq/i.test(n)?"grill":/sal[aã]o/i.test(n)?"party":/jovem/i.test(n)?"game":/brinqued/i.test(n)?"toy":/areia/i.test(n)?"sand":/t[eê]nis/i.test(n)?"tennis":/quadra|campo/i.test(n)?"court":"home";return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+IC[k]+'"/></svg>'}
 const LBL={ok:"Conforme",nc:"Não conforme",na:"N/A"};
 const $=id=>document.getElementById(id),pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
@@ -246,15 +246,6 @@ const hasNC=a=>CR.some(k=>a[k]==="nc"),anyk=a=>!!a&&CR.some(k=>a[k]),fullk=a=>!!
 const critTxt=a=>{const r=CR.filter(k=>a[k]==="nc").map(k=>CN[k]);return r.length>1?r.slice(0,-1).join(", ")+" e "+r[r.length-1]:r.join("")};
 const ab=v=>v==="ok"?"✓":v==="nc"?"✕":v==="na"?"N/A":"–";
 /*fim-helpers*/
-/* Datas e horas sempre no padrão brasileiro (dd/mm/aaaa, 24 h), qualquer que seja o idioma do aparelho. O valor interno continua ISO. */
-function brWrap(el,kind){
-  const w=document.createElement("div");w.className="brw";if(el.parentNode)el.parentNode.insertBefore(w,el);
-  const sp=document.createElement("span");sp.className="brs";sp.setAttribute("aria-hidden","true");w.append(el,sp);
-  const f=v=>!v?(kind==="date"?"dd/mm/aaaa":kind==="month"?"mm/aaaa":"--:--"):kind==="date"?v.split("-").reverse().join("/"):kind==="month"?v.slice(5,7)+"/"+v.slice(0,4):v;
-  const up=()=>{sp.textContent=f(el.value);sp.classList.toggle("ph",!el.value)};
-  try{const pd=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value");Object.defineProperty(el,"value",{get(){return pd.get.call(el)},set(v){pd.set.call(el,v);up()},configurable:true})}catch(e){}
-  ["input","change"].forEach(e=>el.addEventListener(e,up));up();return w}
-
 /* ---- Outra área (não listada) ----
    Cada ocorrência é um item de S.x: {id, nome, n (ocorrência), gv (gravidade), p (fotos), r ("nc" ou "ok")}.
    No histórico ela vira uma não conformidade com o critério "x", e entra no mesmo cálculo de pendências das demais áreas. */
@@ -298,7 +289,7 @@ const COM={l:["Sujeira acumulada no piso","Lixeira transbordando","Mau cheiro no
 const RISCO={"Cheiro de gás":"Não acione interruptores nem chamas, ventile e afaste as pessoas; se persistir, Bombeiros (193).","Fiação exposta":"Isole a área e não toque no ponto.","Peça solta em brinquedo":"Retire o brinquedo de uso.","Quina exposta":"Isole ou retire o móvel de uso.","Cabo de aço desgastado":"Sinalize o equipamento como fora de uso.","Portão ou cerca sem trava":"Isole o acesso à piscina infantil.","Ralo ou grelha danificados":"Isole a área da piscina.","Trave ou tabela solta":"Isole e sinalize a área.","Pessoa presa no elevador":"Acione a empresa de elevadores e os Bombeiros (193)."};
 const riscoDe=t=>Object.keys(RISCO).filter(p=>String(t||"").includes(p));
 const LIB={
-AC:{it:["Esteira","Bicicleta ergométrica","Elíptico","Estação de musculação","Halteres e pesos livres","Espelho","Ar-condicionado","Bebedouro"],l:["Equipamento com suor ou marcas de uso","Estofado dos bancos sujo","Espelho com manchas","Falta de álcool ou papel toalha","Pano de limpeza esquecido no ambiente"],o:["Pesos fora dos suportes","Halteres fora da ordem de peso","Acessórios espalhados","Bancos fora da posição"],g:["Esteira sem funcionamento","Equipamento com ruído anormal","Equipamento instável","Banco ou estofado rasgado","Espelho trincado","Cabo de aço desgastado","Ar-condicionado sem refrigeração","Bebedouro sem funcionamento"]},
+AC:{it:["Esteira","Bicicleta ergométrica","Elíptico","Estação de musculação","Halteres e pesos livres","Espelho","Ar-condicionado","Bebedouro"],l:["Equipamento com suor ou marcas de uso","Estofado dos bancos sujo","Espelho com manchas","Falta de álcool ou papel toalha","Pano de limpeza esquecido no ambiente"],o:["Pesos fora dos suportes","Halteres fora da ordem de peso","Acessórios espalhados","Bancos fora da posição"],g:["Equipamento sem funcionamento","Equipamento com ruído anormal","Equipamento instável","Painel ou console com falha","Peça solta ou faltando","Ponteira, esfera de borracha ou terminal danificado","Banco ou estofado rasgado","Cabo de aço desgastado","Espelho trincado","Ar-condicionado sem refrigeração","Bebedouro sem funcionamento"]},
 PI:{it:["Borda e piso ao redor","Ducha","Corrimão e escada","Deck e espreguiçadeiras","Portão e cerca","Ralo ou grelha","Iluminação da piscina"],l:["Água com aspecto turvo","Folhas ou resíduos na água","Sujeira na borda","Piso com limo","Espreguiçadeiras sujas"],o:["Espreguiçadeiras fora do lugar","Objetos ou brinquedos deixados na área","Mesas e guarda-sóis desorganizados"],g:["Água fria","Aquecimento sem funcionamento","Ducha sem funcionamento","Corrimão solto","Piso escorregadio","Portão ou cerca sem trava","Ralo ou grelha danificados","Iluminação da piscina com falha"]},
 SP:{it:["Jacuzzi","Sauna","Ducha","Bancos","Ventilação","Hidromassagem"],l:["Água com aspecto turvo","Piso com limo","Bancos com sujeira","Cheiro de mofo","Umidade excessiva"],o:["Acessórios fora do lugar","Objetos esquecidos","Mobiliário desorganizado"],g:["Temperatura muito alta","Temperatura muito baixa","Hidromassagem sem funcionamento","Ventilação insuficiente","Banco danificado","Piso escorregadio","Porta com defeito","Iluminação com falha"]},
 HE:{it:["Elevador social","Elevador de serviço","Botoeira","Porta do elevador","Espelho","Painel","Piso do hall","Iluminação do hall","Capacho"],l:["Piso do hall com manchas","Cabine do elevador suja","Espelho com marcas","Botoeira com sujeira","Capacho sujo ou deslocado","Mau cheiro na cabine"],o:["Objetos deixados no hall","Materiais de mudança sem retirada","Mobiliário do hall fora do lugar","Avisos fora do local apropriado"],g:["Elevador parado","Porta com falha de funcionamento","Ruído anormal durante a operação","Botão danificado","Nivelamento incorreto","Iluminação da cabine com falha","Espelho trincado","Painel com indicação apagada","Pessoa presa no elevador"]},
@@ -306,12 +297,20 @@ CH:{it:["Churrasqueira","Grelha","Coifa ou exaustor","Bancada","Pia e torneira",
 SF:{it:["Cozinha","Bancada e pia","Geladeira","Fogão","Ar-condicionado","Banheiros","Som","Televisão","Mesas e cadeiras"],l:["Resíduos de evento anterior","Lixo não retirado","Cozinha ou pia suja","Banheiro sem limpeza ou reposição","Odor de alimentos"],o:["Mesas e cadeiras fora da disposição padrão","Utensílios do evento deixados","Cozinha desorganizada"],g:["Ar-condicionado sem refrigeração","Geladeira sem funcionamento","Equipamento da cozinha com defeito","Mobiliário quebrado","Som sem funcionamento","Televisão sem funcionamento"]},
 EJ:{it:["Mesa de jogos","Pebolim","Televisão","Sofás e puffs","Controles","Ar-condicionado","Tomadas"],l:["Superfícies com sujeira","Estofados sujos","Piso com resíduos"],o:["Jogos fora do lugar","Controles sem guarda","Mobiliário desorganizado"],g:["Mesa de jogos danificada","Pebolim sem funcionamento","Televisão sem funcionamento","Sofá ou puff danificado","Tomada danificada","Fiação exposta"]},
 BR:{it:["Brinquedos","Mesas e cadeiras","Estantes","Piso emborrachado","Sofás","Televisão","Tomadas"],l:["Brinquedos com sujeira","Superfícies sem higienização","Estofados sujos","Piso com resíduos"],o:["Brinquedos espalhados","Brinquedos fora das prateleiras","Mobiliário fora do lugar"],g:["Brinquedo quebrado","Peça solta em brinquedo","Piso emborrachado danificado","Estante instável","Quina exposta","Fiação exposta","Tomada danificada"]},
-QD:{it:["Piso ou superfície","Rede","Alambrado","Traves e tabelas","Iluminação","Linhas de demarcação","Portão de acesso","Bancos"],l:["Folhas ou lixo na superfície","Água parada","Areia suja ou com resíduos","Grama sintética com sujeira","Bancos sujos"],o:["Bolas ou materiais esportivos deixados","Equipamentos fora do lugar","Objetos esquecidos"],g:["Piso irregular","Rede rasgada ou frouxa","Alambrado danificado","Iluminação insuficiente","Grama sintética descolada ou desgastada","Linhas de demarcação apagadas","Trave ou tabela solta","Portão com defeito","Poste instável"]}};
-const lib=nm=>/academia/i.test(nm)?LIB.AC:/piscina/i.test(nm)?LIB.PI:/jacuzzi|^spa$/i.test(nm)?LIB.SP:/hall|lobby/i.test(nm)?LIB.HE:/churrasq/i.test(nm)?LIB.CH:/sal[aã]o/i.test(nm)?LIB.SF:/jovem/i.test(nm)?LIB.EJ:/brinqued/i.test(nm)?LIB.BR:/areia|t[eê]nis|quadra|campo/i.test(nm)?LIB.QD:null;
+QD:{it:["Piso ou superfície","Rede","Alambrado","Traves e tabelas","Iluminação","Linhas de demarcação","Portão de acesso","Bancos"],l:["Folhas ou lixo na superfície","Água parada","Areia suja ou com resíduos","Grama sintética com sujeira","Bancos sujos"],o:["Bolas ou materiais esportivos deixados","Equipamentos fora do lugar","Objetos esquecidos"],g:["Piso irregular","Rede rasgada ou frouxa","Alambrado danificado","Iluminação insuficiente","Grama sintética descolada ou desgastada","Linhas de demarcação apagadas","Trave ou tabela solta","Portão com defeito","Poste instável"]},
+GA:{it:["Vagas e demarcação","Circulação e rampas","Portão da garagem","Iluminação","Ralo e grelha","Extintores","Sinalização"],l:["Piso com óleo ou manchas","Lixo na garagem","Poeira ou sujeira acumulada","Ralo ou grelha obstruídos"],o:["Veículo em local indevido","Objetos ou materiais deixados","Vaga demarcada obstruída"],g:["Sinalização apagada ou danificada","Piso danificado","Poça ou vazamento","Portão com falha","Extintor ausente ou fora de posição"]},
+MO:{it:["Monitores","Ar-condicionado","Nobreak","Mobiliário","Iluminação"],l:["Sala com sujeira ou lixo acumulado","Superfícies com poeira","Mau cheiro no ambiente"],o:["Documentos ou objetos fora do lugar","Cabos soltos no piso","Bancada com excesso de itens"],g:["Monitor sem imagem","Câmera sem imagem no monitor","Ar-condicionado sem refrigeração","Nobreak com alarme","Mobiliário danificado","Rádio ou telefone sem funcionamento"]},
+VF:{it:["Vestiários","Armários","Chuveiros","Sanitários","Copa","Geladeira","Micro-ondas","Pia"],l:["Piso sujo ou molhado","Sanitário sem limpeza","Copa com resíduos de alimentos","Lixo acumulado","Mau cheiro"],o:["Armários desorganizados","Objetos deixados","Utensílios fora do lugar"],g:["Chuveiro sem funcionamento","Armário danificado","Geladeira sem funcionamento","Ralo entupido"]},
+LX:{it:["Lixeira de orgânicos","Lixeira de recicláveis","Lixeira de pilhas","Piso e ralo","Tampas"],l:["Lixeira transbordando","Resíduos fora dos recipientes","Piso com chorume","Mau cheiro forte","Presença de insetos ou roedores"],o:["Resíduos misturados na lixeira errada","Sacos ou caixas fora do local","Acesso obstruído"],g:["Lixeira danificada","Tampa quebrada","Ralo entupido","Coletor de pilhas cheio"]},
+CA:{it:["Cancela ou portão","Leitor de acesso","Interfone","Câmera","Catraca ou eclusa","Botoeira","Iluminação"],l:["Guarita ou cabine com sujeira","Piso com sujeira","Vidros com manchas"],o:["Veículo parado em local indevido","Objetos obstruindo a passagem","Volumes ou documentos fora do lugar"],g:["Cancela ou portão sem funcionamento","Leitor de acesso com falha","Interfone sem funcionamento","Catraca travada","Câmera sem imagem","Sensor de segurança sem funcionamento"]},
+EN:{it:["Prateleiras","Volumes","Balcão","Refrigeração","Fechadura"],l:["Sala suja","Caixas ou embalagens acumuladas","Mau cheiro"],o:["Volumes sem identificação","Volumes acumulados além da capacidade","Volumes no chão ou obstruindo a passagem","Encomenda perecível sem refrigeração"],g:["Prateleira danificada","Porta ou fechadura com defeito","Ar-condicionado sem refrigeração","Refrigerador sem funcionamento"]}};
+const lib=nm=>/academia/i.test(nm)?LIB.AC:/piscina/i.test(nm)?LIB.PI:/jacuzzi|^spa$/i.test(nm)?LIB.SP:/hall|lobby/i.test(nm)?LIB.HE:/churrasq/i.test(nm)?LIB.CH:/sal[aã]o/i.test(nm)?LIB.SF:/jovem/i.test(nm)?LIB.EJ:/brinqued/i.test(nm)?LIB.BR:/areia|t[eê]nis|quadra|campo/i.test(nm)?LIB.QD:/garagem/i.test(nm)?LIB.GA:/monitoramento/i.test(nm)?LIB.MO:/vesti[aá]rio/i.test(nm)?LIB.VF:/lixeira/i.test(nm)?LIB.LX:/controle de acesso/i.test(nm)?LIB.CA:/encomenda/i.test(nm)?LIB.EN:null;
 const fl=(nm,a)=>a.filter(t=>!(/^Areia/.test(t)&&!/areia/i.test(nm))&&!(/^Grama/.test(t)&&!/campo/i.test(nm)));
-const itens=nm=>{const L=lib(nm);return L?fl(nm,L.it):[]};
+const itens=nm=>{const L=lib(nm),TQ=/superiores|casa de m|barrilete/i.test(nm)?["Torre A","Torre B","Torre C","Torre D"]:[];return L?TQ.concat(fl(nm,L.it)):[]};
+const secDe=nm=>Object.keys(SEC).find(k=>SEC[k].includes(nm))||"T";
+const SECT={T:["Áreas do condomínio","Marque só as áreas que você vistoriou nesta ronda. As que ficarem em branco não entram no PDF."],S1:["Sobressolo S1","Garagem, monitoramento e apoio aos funcionários."],S2:["Sobressolo S2","Garagem, controles de acesso e sala de encomendas."]};
 const pr=(nm,k)=>{const L=lib(nm);return L?uniq(fl(nm,L[k]).concat(COM[k])):RP.p[k]};
-const empr=nm=>/hall|lobby/i.test(nm)?["Empresa de elevadores comunicada"]:/piscina|jacuzzi|^spa$/i.test(nm)?["Empresa da piscina comunicada"]:/academia/i.test(nm)?["Empresa de equipamentos comunicada"]:[];
+const empr=nm=>/hall|lobby/i.test(nm)?["Empresa de elevadores comunicada"]:/piscina|jacuzzi|^spa$/i.test(nm)?["Empresa da piscina comunicada"]:/academia/i.test(nm)?["Empresa de equipamentos comunicada"]:/gerador|centros de medi|quadros|bomba|casa de m|barrilete|reservat/i.test(nm)?["Empresa terceirizada comunicada"]:/controle de acesso/i.test(nm)?["Empresa de controle de acesso comunicada"]:[];
 
 /* Elevadores por área (15 no total). Toque no botão para dizer qual elevador tem o problema. */
 const ELEV=(()=>{const sv=f=>"Elevador de serviço ("+f+")";return{
@@ -323,6 +322,14 @@ const ELEV=(()=>{const sv=f=>"Elevador de serviço ("+f+")";return{
 function togglePhrase(ta,ph){let t=ta.value.trim();const f=ph+".";
   if(t.includes(f))t=t.replace(f,"").replace(/\s{2,}/g," ").trim();else t=t?(/[.!?:]$/.test(t)?t+" ":t+". ")+f:f;
   ta.value=t;ta.dispatchEvent(new Event("input"))}
+const INV={AC:[["Cardio",["0060 · Esteira (RT250 iLED)", "0061 · Esteira (RT250 iLED)", "0062 · Esteira (LX160 G4)", "0063 · Elíptico (LXE G4)", "0064 · Simulador de remo (Matrix)", "0065 · Bicicleta spinning (Matrix)", "0066 · Bicicleta spinning (Matrix)", "0067 · Bicicleta ergométrica horizontal (Vision Fitness)", "0068 · Bicicleta ergométrica vertical (LXU G4)", "0069 · Bicicleta ergométrica vertical (LXU G4)"]],
+["Musculação · máquinas",["0070 · Hack horizontal (Supreme)", "0071 · Hack vertical (Supreme)", "0072 · Adutora e abdutora (Matrix)", "0073 · Glúteo máquina (Matrix)", "0074 · Desenvolvimento de ombro (Supreme)", "0075 · Supino declinado máquina (Supreme)", "0076 · Pulley (Supreme)", "0077 · Pulley (Matrix)", "0078 · Remada sentada (Supreme)", "0082 · Peck fly (Matrix)", "0084 · Scoot máquina (Matrix)", "0085 · Cross over angulado (Life Fitness)", "0086 · Leg press horizontal (Life Fitness)", "0087 · Mesa flexora (Life Fitness)", "0088 · Cadeira flexora (Matrix)", "0090 · Monocross (Matrix)"]],
+["Barras e bancos",["0079 · Smith (Life Fitness)", "0080 · Banco livre articulado", "0081 · Supino reto", "0083 · Banco articulado (Supreme)", "0089 · Banco articulado (Supreme)"]],
+["Sala e acessórios",["Halteres e pesos livres","Espelho","Ar-condicionado","Bebedouro","Piso e revestimentos","Tomadas e iluminação"]]]};
+function selRow(grps,ta,title){const w=document.createElement("div");w.className="qr";const l=document.createElement("span");l.className="lb";l.textContent=title;w.appendChild(l);
+  const s=document.createElement("select");s.setAttribute("aria-label",title);s.style.cssText="width:100%;min-height:44px";const o0=document.createElement("option");o0.value="";o0.textContent="Escolher equipamento…";s.appendChild(o0);
+  grps.forEach(([g,its])=>{const og=document.createElement("optgroup");og.label=g;its.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;og.appendChild(o)});s.appendChild(og)});
+  s.onchange=()=>{if(s.value&&!ta.value.includes(s.value+"."))togglePhrase(ta,s.value);s.value=""};w.appendChild(s);return w}
 function chipRow(opts,ta,title){
   if(!opts.length)return null;const w=document.createElement("div");w.className="qr";
   const l=document.createElement("span");l.className="lb";l.textContent=title;w.appendChild(l);
@@ -333,7 +340,7 @@ function chipRow(opts,ta,title){
 function build(){
   const L=$("list");L.innerHTML="";
   ORDER.forEach(i=>{const nm=AREAS[i];
-    const GR=i===ORDER[0]?["Áreas do condomínio","Marque só as áreas que você vistoriou nesta ronda. As que ficarem em branco não entram no PDF."]:null;
+    const oi=ORDER.indexOf(i),GR=(oi===0||secDe(AREAS[ORDER[oi-1]])!==secDe(nm))?SECT[secDe(nm)]:null;
     if(GR){const g=document.createElement("div");g.className="grp";g.innerHTML="<b></b><small></small>";g.firstChild.textContent=GR[0];g.lastChild.textContent=GR[1];L.appendChild(g)}
     const a=S.a[i]||{},d=document.createElement("div");
     d.id="a"+i;d.className="area"+(hasNC(a)?" bad":fullk(a)?" done":"");
@@ -362,7 +369,7 @@ function build(){
       const ta=x.querySelector("textarea");ta.value=a.n||"";if(hasNC(a)&&!ta.value.trim())ta.style.borderColor="var(--bad)";
       const rkEl=document.createElement("div");rkEl.className="hint";rkEl.style.cssText="color:var(--bad);font-weight:700";ta.after(rkEl);const rkUp=()=>{const r=riscoDe(ta.value);rkEl.textContent=r.length?"RISCO: "+r.map(p=>RISCO[p]).join(" ")+" Avise já o Gerente Predial e o encarregado.":""};rkUp();
       ta.oninput=()=>{A(i).n=ta.value;save();ta.style.borderColor=hasNC(A(i))&&!ta.value.trim()?"var(--bad)":"";rkUp();prog()};
-      {const nk=CR.filter(k=>a[k]==="nc");if(nk.length){const rows=[chipRow(ELEV[nm]||[],ta,"Qual elevador? (se for o caso)"),chipRow(itens(nm),ta,"Qual item? (se for o caso)"),chipRow(uniq([].concat(...nk.map(k=>pr(nm,k)))),ta,"O que foi encontrado"),chipRow(uniq([].concat(...nk.map(k=>RP.a[k]),RP.a.x,empr(nm))),ta,"Quem foi comunicado"),chipRow(ESTADO,ta,"Estado da área")].filter(Boolean);if(rows.length){const dt=document.createElement("details");dt.className="rp";dt.open=!!RPOPEN[i];const sm2=document.createElement("summary");sm2.textContent="Respostas prontas";dt.appendChild(sm2);const mv=rows.filter(r=>/^(Quem foi comunicado|Estado da área)/.test(r.firstChild.textContent));rows.filter(r=>!mv.includes(r)).forEach(r=>dt.appendChild(r));if(mv.length){const d2=document.createElement("details");d2.className="rp rp2";d2.open=!!RPOPEN[i+"c"];const s3=document.createElement("summary");s3.textContent="Comunicação e estado da área";d2.appendChild(s3);mv.forEach(r=>d2.appendChild(r));d2.ontoggle=()=>{RPOPEN[i+"c"]=d2.open};dt.appendChild(d2)}dt.ontoggle=()=>{RPOPEN[i]=dt.open};x.insertBefore(dt,ta)}}}
+      {const nk=CR.filter(k=>a[k]==="nc");if(nk.length){const rows=[chipRow(ELEV[nm]||[],ta,"Qual elevador? (se for o caso)"),(/academia/i.test(nm)?selRow(INV.AC,ta,"Qual equipamento?"):chipRow(itens(nm),ta,"Qual item? (se for o caso)")),chipRow(uniq([].concat(...nk.map(k=>pr(nm,k)))),ta,"O que foi encontrado"),chipRow(uniq([].concat(...nk.map(k=>RP.a[k]),RP.a.x,empr(nm))),ta,"Quem foi comunicado"),chipRow(ESTADO,ta,"Estado da área")].filter(Boolean);if(rows.length){const dt=document.createElement("details");dt.className="rp";dt.open=!!RPOPEN[i];const sm2=document.createElement("summary");sm2.textContent="Respostas prontas";dt.appendChild(sm2);const mv=rows.filter(r=>/^(Quem foi comunicado|Estado da área)/.test(r.firstChild.textContent));rows.filter(r=>!mv.includes(r)).forEach(r=>dt.appendChild(r));if(mv.length){const d2=document.createElement("details");d2.className="rp rp2";d2.open=!!RPOPEN[i+"c"];const s3=document.createElement("summary");s3.textContent="Comunicação e estado da área";d2.appendChild(s3);mv.forEach(r=>d2.appendChild(r));d2.ontoggle=()=>{RPOPEN[i+"c"]=d2.open};dt.appendChild(d2)}dt.ontoggle=()=>{RPOPEN[i]=dt.open};x.insertBefore(dt,ta)}}}
       const ph=x.querySelector(".ph");
       (a.p||[]).forEach(u=>{const m=new Image();m.src=u;m.alt="Foto de "+nm;ph.appendChild(m)});
       const mk=(txt,cam,multi)=>{const b=document.createElement("button");b.className="addph";b.textContent=txt;
@@ -527,50 +534,38 @@ function sigForPdf(cb){
   if(!S.sig)return cb(null);const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=i.width;c.height=i.height;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(i,0,0);
     cb({u:c.toDataURL("image/jpeg",.8),w:c.width,h:c.height})};i.onerror=()=>cb(null);i.src=S.sig}
 function makePdf(sg){
-  const {jsPDF}=window.jspdf,d=new jsPDF({unit:"mm",format:"a4"}),W=210,M=14,CW=W-2*M,G=[201,169,97],V=[26,26,26],MU=[107,107,107],BAD=[185,60,60],OK=[47,125,79],CREAM=[250,248,243],LN=[226,221,208],RSK=[130,20,20],GVC={baixa:[196,148,40],media:[205,115,40],alta:[185,60,60],risco:[130,20,20]};
+  const {jsPDF}=window.jspdf,d=new jsPDF({unit:"mm",format:"a4"}),W=210,M=14,G=[201,169,97],V=[26,26,26],MU=[107,107,107],BAD=[185,60,60],OK=[47,125,79];
   usePdfFonts(d);let y=0;
   const room=h=>{if(y+h>276){d.addPage();y=18}};
   const col=k=>k==="ok"?OK:k==="nc"?BAD:[122,122,116];
   const insp=i=>anyk(S.a[i]);
   const fx=xAt(),fxn=fx.filter(e=>e.r!=="ok"),ncs=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])),nc=ncs.length+fxn.length,ins=IDX.filter(insp).length+fx.length;
-  const sec=t=>{room(18);d.setFillColor(...G);d.rect(M,y-4.4,1.4,6.2,"F");d.setFont("times","bold");d.setFontSize(13.5);d.setTextColor(...V);d.text(t,M+4,y);y+=2.6;d.setDrawColor(...LN);d.setLineWidth(.2);d.line(M,y,W-M,y);y+=7};
-  const pill=(t,xr,yb,c)=>{d.setFont("helvetica","bold");d.setFontSize(8);const w=d.getTextWidth(t)+6,cl=f=>c.map(v=>Math.round(v+(255-v)*f));d.setFillColor(...cl(.9));d.setDrawColor(...cl(.55));d.setLineWidth(.2);d.roundedRect(xr-w,yb-4,w,5.6,2.8,2.8,"FD");d.setTextColor(...c);d.text(t,xr-w/2,yb,{align:"center"});return w};
+  const sec=t=>{room(16);d.setFont("times","bold");d.setFontSize(13);d.setTextColor(...V);d.text(t,M,y);y+=2;d.setDrawColor(215);d.setLineWidth(.2);d.line(M,y,W-M,y);y+=7};
   const pics=(ph,x,big)=>{const n=big?3:4,bw=big?56:38,bh=big?42:30,px=big?59:41,py=big?45:33;ph.forEach((u,k)=>{const cx=x+(k%n)*px,cy=y+Math.floor(k/n)*py;d.setDrawColor(225);d.setFillColor(247,246,244);d.rect(cx,cy,bw,bh,"FD");const pr=d.getImageProperties(u),r=Math.min((bw-2)/pr.width,(bh-2)/pr.height),w=pr.width*r,h=pr.height*r;d.addImage(u,"JPEG",cx+(bw-w)/2,cy+(bh-h)/2,w,h)});y+=Math.ceil(ph.length/n)*py};
   y=pdfCab(d,"Checklist diário · Limpeza, organização e integridade das áreas comuns",rondaId());
   /* resumo */
   sec("Resumo da ronda");
-  { const h=31,cor=nc?BAD:OK;
-    d.setFillColor(...CREAM);d.setDrawColor(...LN);d.setLineWidth(.25);d.roundedRect(M,y-2,CW,h,2.5,2.5,"FD");
-    d.setFillColor(...cor);d.rect(M+.1,y-1.6,1.8,h-.8,"F");
-    d.setFont("times","bold");d.setFontSize(17);d.setTextColor(...cor);
-    d.text(nc?nc+(nc===1?" não conformidade":" não conformidades"):"Nenhuma não conformidade",M+7,y+8);
-    d.setDrawColor(...LN);d.setLineWidth(.2);d.line(M+7,y+12,W-M-5,y+12);
-    const meta=[["DATA",fmtDate(S.dt)],["HORÁRIO",S.tm],["TURNO",S.tn||"—"],["RESPONSÁVEL",d.splitTextToSize(String(S.resp||""),86)[0]]],xs=[M+7,M+38,M+62,M+88];
-    meta.forEach((m,j)=>{d.setFont("helvetica","bold");d.setFontSize(7);d.setTextColor(...MU);d.text(m[0],xs[j],y+17.5,{charSpace:.4});d.setFont("helvetica","normal");d.setFontSize(10.5);d.setTextColor(...V);d.text(String(m[1]),xs[j],y+23.5)});
-    y+=h+4;
-  }
-  { const ok0=ins-nc,nf=IDX.reduce((t,i)=>t+(S.a[i]&&S.a[i].p?S.a[i].p.length:0),0)+fxn.reduce((t,e)=>t+(e.p||[]).length,0),cells=[[ins,ins===1?"área vistoriada":"áreas vistoriadas",V],[ok0,ok0===1?"sem ocorrência":"sem ocorrências",OK],[nc,nc===1?"não conforme":"não conformes",nc?BAD:V],[nf,nf===1?"foto anexada":"fotos anexadas",V]],cw=CW/4,h=17;
-    d.setFillColor(255,255,255);d.setDrawColor(...LN);d.setLineWidth(.25);d.roundedRect(M,y,CW,h,2.5,2.5,"FD");
-    cells.forEach((c,j)=>{const cx=M+j*cw;if(j){d.setDrawColor(...LN);d.setLineWidth(.2);d.line(cx,y+3,cx,y+h-3)}d.setFont("times","bold");d.setFontSize(17);d.setTextColor(...c[2]);d.text(String(c[0]),cx+cw/2,y+8.2,{align:"center"});d.setFont("helvetica","normal");d.setFontSize(8);d.setTextColor(...MU);d.text(c[1],cx+cw/2,y+13.4,{align:"center"})});
-    y+=h+10;
-  }
+  d.setDrawColor(...(nc?BAD:OK));d.setLineWidth(.5);d.roundedRect(M,y-2,W-2*M,27,2,2);d.setLineWidth(.2);
+  d.setFont("times","bold");d.setFontSize(17);d.setTextColor(...(nc?BAD:OK));
+  d.text(nc?nc+(nc===1?" não conformidade":" não conformidades"):"Nenhuma não conformidade",M+5,y+7);
+  d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(...V);
+  d.text("Data: "+fmtDate(S.dt)+"     Horário: "+S.tm,M+5,y+14);d.text("Responsável: "+S.resp+"     Turno: "+(S.tn||""),M+5,y+20);
+  d.setTextColor(...MU);d.text(ins+(ins===1?" área vistoriada":" áreas vistoriadas"),W-M-5,y+7,{align:"right"});const ok0=ins-nc,nf=IDX.reduce((t,i)=>t+(S.a[i]&&S.a[i].p?S.a[i].p.length:0),0)+fxn.reduce((t,e)=>t+(e.p||[]).length,0);d.text(ok0+(ok0===1?" sem ocorrência":" sem ocorrências"),W-M-5,y+13,{align:"right"});if(nf)d.text(nf+(nf===1?" foto anexada":" fotos anexadas"),W-M-5,y+19,{align:"right"});
+  y+=32;
   /* ocorrências */
   if(nc){
     sec("Ocorrências");
-    ncs.map(i=>({nome:AREAS[i],cr:critTxt(S.a[i]),n:S.a[i].n||"",p:S.a[i].p||[],c:BAD})).concat(fxn.map(e=>({nome:xNome(e),cr:"Área não listada · gravidade "+GV[e.gv].toLowerCase(),n:(e.n||"").trim(),p:e.p||[],c:GVC[e.gv]||BAD}))).forEach(a=>{
-      d.setFont("helvetica","normal");d.setFontSize(10);
-      const t=d.splitTextToSize(a.n||"Sem descrição registrada.",CW-14),ph=a.p||[],rk=riscoDe(a.n);
-      const h=4+6+t.length*4.6+(ph.length?1+Math.ceil(ph.length/3)*45:0)+3;
-      room(h+9);const y0=y;
-      d.setFillColor(...CREAM);d.setDrawColor(...LN);d.setLineWidth(.2);d.roundedRect(M,y0-4,CW,h,2,2,"FD");
-      d.setFillColor(...a.c);d.rect(M+.1,y0-3.6,1.5,h-.8,"F");
-      d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(...V);d.text(a.nome,M+6,y0+1);
-      let xr=W-M-4;if(rk.length)xr-=pill("ATENÇÃO",xr,y0+.6,RSK)+2;pill(a.cr,xr,y0+.6,a.c);
-      y=y0+7;d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(60);d.text(t,M+6,y);y+=t.length*4.6;
-      if(ph.length){y+=1;pics(ph,M+6,true)}
-      y=y0-4+h+8;
+    ncs.map(i=>({nome:AREAS[i],cr:critTxt(S.a[i]),n:S.a[i].n||"",p:S.a[i].p||[]})).concat(fxn.map(e=>({nome:xNome(e),cr:"Área não listada · gravidade "+GV[e.gv].toLowerCase(),n:(e.n||"").trim(),p:e.p||[]}))).forEach(a=>{
+      const cr=a.cr;
+      const t=d.splitTextToSize(a.n||"",W-2*M-8),ph=a.p||[];
+      const h=7+t.length*4.6+(ph.length?Math.ceil(ph.length/3)*45+1:0);
+      room(h);const y0=y;
+      d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(...V);d.text(a.nome,M+5,y);
+      d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(...BAD);d.text(cr,W-M,y,{align:"right"});y+=5.5;
+      d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(60);d.text(t,M+5,y);y+=t.length*4.6;
+      if(ph.length){y+=1;pics(ph,M+5,true)}
+      d.setFillColor(...BAD);d.rect(M,y0-4,1.1,y-y0+2,"F");y+=4;
     });
-    y+=2;
   }
   { const K=pdfKit(d);K.y=y;
     const cs=cases(S.dt),prev=(hist().filter(x=>x.dt<S.dt).sort((a,b)=>a.dt<b.dt?1:-1)[0]||{}).dt||"",ab=cs.filter(c=>!c.closedAt&&c.since<S.dt),rs=cs.filter(c=>c.closedAt&&c.closedAt>prev&&c.closedAt<=S.dt);
@@ -580,37 +575,25 @@ function makePdf(sg){
     y=K.y}
   /* registro por área */
   room(40);y+=3;sec("Registro por área");
-  const XS=[92,126,160];let zi=0;
-  const thead=()=>{const yb=y;d.setFillColor(243,239,229);d.rect(M,yb-4.6,CW,7,"F");d.setFont("helvetica","bold");d.setFontSize(7.5);d.setTextColor(...MU);d.text("ÁREA",M+3,yb,{charSpace:.4});["LIMPEZA","ORGANIZAÇÃO","INTEGRIDADE"].forEach((t,j)=>d.text(t,XS[j]+4,yb,{charSpace:.4}));y=yb+2.4;zi=0};thead();
-  const stat=(k,x,yb)=>{const c=col(k);d.setFillColor(...c);d.circle(x+1,yb-1.15,1,"F");d.setFont("helvetica","bold");d.setFontSize(9);d.setTextColor(...c);d.text(LBL[k]||"Não vistoriado",x+4,yb)};
-  const zebra=(ry,h)=>{if(zi++%2===0){d.setFillColor(...CREAM);d.rect(M,ry,CW,h,"F")}};
+  const thead=()=>{d.setFont("helvetica","bold");d.setFontSize(9);d.setTextColor(...MU);d.text("Área",M,y);d.text("Limpeza",92,y);d.text("Organização",126,y);d.text("Integridade",162,y);y+=2;d.setDrawColor(215);d.line(M,y,W-M,y);y+=5};thead();
   IDX.filter(insp).forEach(i=>{
-    const a=S.a[i];d.setFont("helvetica","italic");d.setFontSize(9);const nt=!hasNC(a)&&a.n?d.splitTextToSize("Obs.: "+a.n,CW-10):[],ph=!hasNC(a)?(a.p||[]):[];
-    const h=7.4+nt.length*4.3+(ph.length?Math.ceil(ph.length/4)*33+1:0);
-    {const pg0=d.getNumberOfPages();room(h);if(d.getNumberOfPages()>pg0)thead()}
-    const ry=y;zebra(ry,h);
-    d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(...V);d.text(AREAS[i],M+3,ry+4.9);
-    CR.forEach((k,j)=>stat(a[k],XS[j],ry+4.9));
-    if(nt.length){d.setFont("helvetica","italic");d.setFontSize(9);d.setTextColor(90);d.text(nt,M+3,ry+8.8)}
-    if(ph.length){y=ry+7+nt.length*4.3;pics(ph,M+3)}
-    y=ry+h;d.setDrawColor(...LN);d.setLineWidth(.15);d.line(M,y,W-M,y);
+    const a=S.a[i];d.setFont("helvetica","italic");d.setFontSize(9.5);const nt=!hasNC(a)&&a.n?d.splitTextToSize("Obs.: "+a.n,W-2*M-6):[],ph=!hasNC(a)?(a.p||[]):[];{const pg0=d.getNumberOfPages();room(6.5+nt.length*4.5+(ph.length?Math.ceil(ph.length/4)*33:0));if(d.getNumberOfPages()>pg0)thead()}
+    d.setFont("helvetica","normal");d.setFontSize(10.5);d.setTextColor(...V);d.text(AREAS[i],M,y);
+    d.setFont("helvetica","bold");d.setFontSize(9.5);CR.forEach((k,j)=>{d.setTextColor(...col(a[k]));d.text(LBL[a[k]]||"Não vistoriado",[92,126,162][j],y)});y+=4.2;
+    if(nt.length){d.setFont("helvetica","italic");d.setFontSize(9.5);d.setTextColor(80);d.text(nt,M+4,y);y+=nt.length*4.5}
+    if(ph.length)pics(ph,M+4);
+    d.setDrawColor(235);d.line(M,y-.8,W-M,y-.8);y+=2.3;
   });
-  fx.forEach(e=>{const pg0=d.getNumberOfPages();room(7.4);if(d.getNumberOfPages()>pg0)thead();
-    const ry=y;zebra(ry,7.4);
-    d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(...V);d.text(d.splitTextToSize(xNome(e),76)[0],M+3,ry+4.9);
-    const ok=e.r==="ok",c=col(ok?"ok":"nc");d.setFillColor(...c);d.circle(XS[0]+1,ry+3.75,1,"F");d.setFont("helvetica","bold");d.setFontSize(9);d.setTextColor(...c);d.text(ok?"Conforme (área não listada)":"Não conforme · gravidade "+GV[e.gv].toLowerCase()+" (área não listada)",XS[0]+4,ry+4.9);
-    y=ry+7.4;d.setDrawColor(...LN);d.setLineWidth(.15);d.line(M,y,W-M,y)});
-  y+=11;
-  if(S.obs.trim()){room(40);sec("Observações gerais");d.setFont("helvetica","normal");d.setFontSize(10.5);const t=d.splitTextToSize(S.obs.trim(),CW-10),h=t.length*5+6;room(h+2);d.setFillColor(...CREAM);d.setDrawColor(...LN);d.setLineWidth(.2);d.roundedRect(M,y-4,CW,h,2,2,"FD");d.setTextColor(...V);d.text(t,M+5,y+.8);y+=h+6}
+  fx.forEach(e=>{const pg0=d.getNumberOfPages();room(6.5);if(d.getNumberOfPages()>pg0)thead();
+    d.setFont("helvetica","normal");d.setFontSize(10.5);d.setTextColor(...V);d.text(d.splitTextToSize(xNome(e),76)[0],M,y);
+    d.setFont("helvetica","bold");d.setFontSize(9.5);d.setTextColor(...col(e.r==="ok"?"ok":"nc"));d.text(e.r==="ok"?"Conforme (área não listada)":"Não conforme · gravidade "+GV[e.gv].toLowerCase()+" (área não listada)",92,y);y+=4.2;
+    d.setDrawColor(235);d.line(M,y-.8,W-M,y-.8);y+=2.3});
+  y+=3;
+  if(S.obs.trim()){sec("Observações gerais");d.setFont("helvetica","normal");d.setFontSize(10.5);d.setTextColor(...V);const t=d.splitTextToSize(S.obs.trim(),W-2*M);room(t.length*5);d.text(t,M,y);y+=t.length*5+4}
   /* assinatura */
-  if(y+44>281){d.addPage();y=18}y+=10;
+  if(y+32>281){d.addPage();y=18}y+=5;
   if(sg){const w=48,h=w*sg.h/sg.w;d.addImage(sg.u,"JPEG",M,y,w,h);y+=h}else y+=18;
-  d.setDrawColor(...V);d.setLineWidth(.3);d.line(M,y,M+80,y);d.setLineWidth(.2);
-  d.setFont("helvetica","bold");d.setFontSize(10);d.setTextColor(...V);d.text(S.resp,M,y+5.2);
-  d.setFont("helvetica","normal");d.setFontSize(8.5);d.setTextColor(...MU);d.text("Responsável pela vistoria",M,y+9.6);
-  d.setFont("helvetica","bold");d.setFontSize(7);d.setTextColor(...MU);d.text("IDENTIFICAÇÃO DA RONDA",W-M,y-9.5,{align:"right"});
-  d.setFont("helvetica","bold");d.setFontSize(10);d.setTextColor(...V);d.text(rondaId(),W-M,y-4.5,{align:"right"});
-  d.setFont("helvetica","normal");d.setFontSize(8.5);d.setTextColor(...MU);d.text("Registrada em "+fmtDate(S.dt)+" às "+S.tm,W-M,y+.5,{align:"right"});
+  d.setDrawColor(...V);d.line(M,y,M+80,y);d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(...V);d.text(S.resp+" · Responsável pela vistoria",M,y+5);
   pdfRodape(d,"L’Essence Mooca · "+rondaId()+" · "+fmtDate(S.dt)+" · "+(S.tn?S.tn+" · ":"")+S.tm);
   return d.output("blob");
 }
@@ -664,7 +647,7 @@ function histSave(a){sv(HK,a)}
 function acoes(){const a=ld(AK)||[],old=ld(RK)||{};
   return a.concat(Object.keys(old).map(k=>({id:"mig-"+k,key:k,dt:old[k],tm:"",st:"resolvida",txt:"Marcada como resolvida (registro anterior).",p:[]})))}
 function archive(){
-  const ncs=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])).map(i=>{const a=S.a[i];return{area:AREAS[i],crit:critTxt(a),c:CR.filter(k=>a[k]==="nc"),n:(a.n||"").trim()}});
+  const ncs=IDX.filter(i=>S.a[i]&&hasNC(S.a[i])).map(i=>{const a=S.a[i];const c0=CR.filter(k=>a[k]==="nc"),nov=c0.some(k=>!OPENP.some(o=>o.area===AREAS[i]&&o.k===k));return Object.assign({area:AREAS[i],crit:critTxt(a),c:c0,n:(a.n||"").trim()},nov&&a.p&&a.p[0]?{ph:a.p[0]}:{})});
   xNC().forEach(e=>ncs.push({area:xNome(e),crit:"área não listada, gravidade "+GV[e.gv].toLowerCase(),c:["x"],n:(e.n||"").trim(),gv:e.gv}));
   const st={};IDX.filter(i=>anyk(S.a[i])).forEach(i=>{const a=S.a[i];st[AREAS[i]]={l:a.l||"",o:a.o||"",g:a.g||""}});
   xAt().forEach(e=>{st[xNome(e)]=e.r==="ok"?{l:"",o:"",g:"",x:"ok"}:{l:"",o:"",g:"",x:"nc",gv:e.gv}});
@@ -679,12 +662,12 @@ function cases(until){
   const open={},out=[];
   const manual=(c,antes)=>{const r=(by[c.key]||[]).filter(a=>a.st==="resolvida"&&a.dt>=c.since&&(!antes||a.dt<antes)).sort(asc)[0];if(r){c.closedAt=r.dt;c.via="manual";return true}return false};
   H.forEach(x=>{
-    const nc={},gm={};(x.ncs||[]).forEach(n=>(n.c||[]).forEach(k=>{nc[n.area+"|"+k]=n.n;if(n.gv)gm[n.area+"|"+k]=n.gv}));
+    const nc={},gm={},phm={};(x.ncs||[]).forEach(n=>(n.c||[]).forEach(k=>{nc[n.area+"|"+k]=n.n;if(n.gv)gm[n.area+"|"+k]=n.gv;if(n.ph)phm[n.area+"|"+k]=n.ph}));
     Object.keys(x.st||{}).forEach(ar=>CRX.forEach(k=>{
       const key=ar+"|"+k,v=x.st[ar][k];let c=open[key];
       if(c&&manual(c,x.dt)){out.push(c);delete open[key];c=null}
       if(v==="ok"){if(c){c.closedAt=x.dt;c.via="vistoria";out.push(c);delete open[key]}}
-      else if(v==="nc"){c=open[key]||(open[key]={key,area:ar,k,since:x.dt,days:0});if(c.last!==x.dt)c.days++;c.last=x.dt;c.n=nc[key]||c.n||"";c.gv=gm[key]||c.gv||""}
+      else if(v==="nc"){c=open[key]||(open[key]={key,area:ar,k,since:x.dt,days:0});if(c.last!==x.dt)c.days++;c.last=x.dt;c.n=nc[key]||c.n||"";c.gv=gm[key]||c.gv||"";if(!c.ph&&phm[key])c.ph=phm[key]}
     }));
   });
   Object.values(open).forEach(c=>{manual(c);out.push(c)});
@@ -714,27 +697,25 @@ const LIGA=["de","da","do","das","dos","e"];
 const nm=t=>{t=String(t||"").trim();if(t!==t.toUpperCase()&&t!==t.toLowerCase())return t;return t.toLowerCase().split(/\s+/).map((w,i)=>i&&LIGA.includes(w)?w:w.charAt(0).toUpperCase()+w.slice(1)).join(" ")};
 const rondaId=()=>{const p=String(S.resp||"").trim().split(/\s+/).filter(w=>w&&!LIGA.includes(w.toLowerCase())),ini=p.length?(p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase():"";return "LE-"+S.dt.replace(/-/g,"")+"-"+(slug(S.tn)||"ronda").toUpperCase()+(ini?"-"+ini:"")};
 function pdfCab(d,sub,id){
-  const M=14,W=210,G=[201,169,97];
-  d.setFillColor(26,26,26);d.rect(0,0,W,38,"F");d.setFillColor(...G);d.rect(0,38,W,1.2,"F");
-  d.setDrawColor(...G);d.setLineWidth(.6);d.circle(M+10,19,9.5);d.setLineWidth(.2);d.circle(M+10,19,8.1);
-  d.setFont("times","bold");d.setFontSize(15);d.setTextColor(...G);d.text("LE",M+10,21.4,{align:"center"});
-  d.setFontSize(23);d.setTextColor(255,255,255);d.text("L’Essence Mooca",M+27,18);
-  d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(214,205,184);d.text(d.splitTextToSize(sub,W-M-(M+27))[0],M+27,25.5);
-  if(id){d.setFont("helvetica","normal");d.setFontSize(8);d.setTextColor(...G);d.text(id,W-M,11,{align:"right"})}
-  return 51;
+  const M=14,W=210,G=[201,169,97],V=[26,26,26],MU=[107,107,107];
+  d.setDrawColor(...G);d.setLineWidth(.7);d.circle(M+9,M+9,9);d.setLineWidth(.2);d.circle(M+9,M+9,7.6);
+  d.setFont("times","bold");d.setFontSize(15);d.setTextColor(...G);d.text("LE",M+9,M+11.4,{align:"center"});
+  d.setFontSize(22);d.setTextColor(...V);d.text("L’Essence Mooca",M+25,M+8);
+  d.setFont("helvetica","normal");d.setFontSize(10);d.setTextColor(...MU);d.text(sub,M+25,M+14.5);
+  if(id){d.setFontSize(8.5);d.text(id,W-M,M+3,{align:"right"})}
+  d.setDrawColor(...G);d.setLineWidth(.8);d.line(M,M+22,W-M,M+22);d.setLineWidth(.2);d.line(M,M+23.6,W-M,M+23.6);
+  return M+32;
 }
 function pdfRodape(d,rot){
   const M=14,W=210,pc=d.getNumberOfPages(),carimbo="PDF gerado em "+stampNow();
-  for(let k=1;k<=pc;k++){d.setPage(k);
-    if(k>1){d.setFont("times","normal");d.setFontSize(9);d.setTextColor(150,150,150);d.text("L’Essence Mooca",M,9);d.setDrawColor(201,169,97);d.setLineWidth(.3);d.line(M,11.2,W-M,11.2)}
-    d.setDrawColor(226,221,208);d.setLineWidth(.2);d.line(M,284,W-M,284);d.setDrawColor(201,169,97);d.setLineWidth(.7);d.line(M,284,M+22,284);
+  for(let k=1;k<=pc;k++){d.setPage(k);d.setDrawColor(215);d.setLineWidth(.2);d.line(M,284,W-M,284);
     d.setFont("helvetica","normal");d.setFontSize(8.5);d.setTextColor(107,107,107);d.text(rot,M,289);d.text("Página "+k+" de "+pc,W-M,289,{align:"right"});
-    d.setFontSize(7.5);d.setTextColor(140,140,140);d.text(carimbo,M,293)}
+    d.setFontSize(7.5);d.text(carimbo,M,293)}
 }
 function pdfKit(d){
   const W=210,M=14,K={y:0};
   K.room=h=>{if(K.y+h>276){d.addPage();K.y=18}};
-  K.sec=t=>{K.room(18);d.setFillColor(201,169,97);d.rect(M,K.y-4.4,1.4,6.2,"F");d.setFont("times","bold");d.setFontSize(13.5);d.setTextColor(26,26,26);d.text(t,M+4,K.y);K.y+=2.6;d.setDrawColor(226,221,208);d.setLineWidth(.2);d.line(M,K.y,W-M,K.y);K.y+=7};
+  K.sec=t=>{K.room(16);d.setFont("times","bold");d.setFontSize(13);d.setTextColor(26,26,26);d.text(t,M,K.y);K.y+=2;d.setDrawColor(215);d.setLineWidth(.2);d.line(M,K.y,W-M,K.y);K.y+=7};
   K.txt=(t,o)=>{o=Object.assign({size:10,font:"normal",color:[60,60,60],lh:4.6,gap:0},o);d.setFont("helvetica",o.font);d.setFontSize(o.size);d.setTextColor(...o.color);const l=d.splitTextToSize(t,W-2*M);K.room(l.length*o.lh);d.text(l,M,K.y);K.y+=l.length*o.lh+o.gap};
   K.caso=c=>{
     const fech=!!c.closedAt,ac=c.acoes||[],n=fech?dias(c.since,c.closedAt):0;
@@ -756,48 +737,124 @@ function pdfKit(d){
 }
 function makeReport(m){
   const {jsPDF}=window.jspdf,d=new jsPDF({unit:"mm",format:"a4"}),W=210,M=14,K=pdfKit(d),[ano,mm]=m.split("-"),st=statsMes(m);usePdfFonts(d);
-  K.y=pdfCab(d,"Relatório de acompanhamento · "+MESES[+mm-1]+" de "+ano);
-  K.ref=m===today().slice(0,7)?today():m+"-"+pad(new Date(+ano,+mm,0).getDate());
-  K.sec("Resumo do período");
-  const OKc=[47,125,79],BADc=[185,60,60],kp=[[st.L.length,"vistorias",[26,26,26]],[st.ocor,"ocorrências",st.ocor?BADc:OKc],[st.resolvidas.length,"resolvidas",OKc],[st.abertas.length,"em aberto",st.abertas.length?BADc:OKc]],bw=(W-2*M-9)/4;
-  K.room(30);
-  kp.forEach(([n,t,c],j)=>{const x=M+j*(bw+3);d.setDrawColor(215);d.setLineWidth(.3);d.roundedRect(x,K.y-2,bw,20,2,2);d.setFont("times","bold");d.setFontSize(20);d.setTextColor(...c);d.text(String(n),x+bw/2,K.y+9,{align:"center"});d.setFont("helvetica","normal");d.setFontSize(9);d.setTextColor(107,107,107);d.text(t,x+bw/2,K.y+15,{align:"center"})});
-  d.setLineWidth(.2);K.y+=26;
-  {const ab=st.abertas,o=ab[0],ida=o?dias(o.since,K.ref):0,nL=st.L.length,nR=st.resolvidas.length;
-   K.txt(nL+(nL===1?" vistoria":" vistorias")+" no período, com "+st.ocor+(st.ocor===1?" ocorrência":" ocorrências")+" e "+nR+(nR===1?" pendência resolvida":" pendências resolvidas")+". "+(ab.length?(ab.length===1?"1 pendência segue aberta":ab.length+" pendências seguem abertas; a mais antiga")+" há "+ida+(ida===1?" dia":" dias")+" ("+o.area+", "+CN[o.k].toLowerCase()+").":"Nenhuma pendência em aberto ao fim do período."),{font:"bold",size:10.5,color:[26,26,26],gap:3})}
-  {const src=[...new Set(st.L.map(x=>x.dv?(x.dn||"aparelho sem nome"):"aparelho não identificado"))];if(src.length)K.txt("Origem dos registros: "+src.join(", ")+". Registros de aparelhos cujo histórico não foi importado não estão incluídos.",{size:9,font:"italic",color:[107,107,107],gap:3})}
-  K.txt("Tempo médio para resolver: "+(st.tempo===null?"sem pendências resolvidas no período":st.tempo+" dias"),{gap:1});
-  K.txt("Dias com vistoria registrada: "+(st.L.length?st.L.map(x=>fmtDate(x.dt).slice(0,5)).join(", "):"nenhum")+".",{gap:4});
-  K.sec("Pendências resolvidas no período");
-  if(st.resolvidas.length)st.resolvidas.forEach(K.caso);else K.txt("Nenhuma pendência foi resolvida no período.",{gap:4});
-  K.sec("Pendências em aberto ao fim do período");
-  if(st.abertas.length)st.abertas.forEach((c,i)=>{K.mark=st.abertas.length>1&&i===0;K.caso(c);K.mark=false});else K.txt("Nenhuma pendência em aberto.",{gap:4});
-  K.sec("Ocorrências por área");
-  const g={};st.L.forEach(x=>x.ncs.forEach(n=>{const o=g[n.area]||(g[n.area]={dt:new Set(),c:new Set()});o.dt.add(x.dt);n.c.forEach(k=>o.c.add(CN[k].toLowerCase()))}));
-  const ks=Object.keys(g).sort((a,b)=>g[b].dt.size-g[a].dt.size),mx=ks.length?g[ks[0]].dt.size:1;
-  if(ks.length)ks.forEach(a=>{const n=g[a].dt.size;K.room(12);
-    d.setFont("helvetica","bold");d.setFontSize(10);d.setTextColor(26,26,26);d.text(a,M,K.y);
-    d.setFont("helvetica","normal");d.setFontSize(8.5);d.setTextColor(107,107,107);d.text(d.splitTextToSize([...g[a].c].join(", "),70)[0],M,K.y+4.2);
-    const bx=M+76,bw2=Math.max(3,60*n/mx);d.setFillColor(...BADc);d.roundedRect(bx,K.y-3.4,bw2,5.4,1,1,"F");
-    d.setFont("helvetica","bold");d.setFontSize(9.5);d.setTextColor(...BADc);d.text(n+(n===1?" dia":" dias"),bx+bw2+2.5,K.y+.6);K.y+=11});
-  else K.txt("Nenhuma ocorrência registrada no período.");
-  K.y+=4;K.room(46);K.sec("Registro das vistorias");
-  const th=()=>{d.setFont("helvetica","bold");d.setFontSize(9);d.setTextColor(107,107,107);[["Data",0],["Turno",24],["Responsável",48],["Áreas",118],["Ocorrências",146]].forEach(([t,o])=>d.text(t,M+o,K.y));K.y+=2;d.setDrawColor(215);d.setLineWidth(.2);d.line(M,K.y,W-M,K.y);K.y+=5};
-  if(st.L.length){K.room(24);th();
-    st.L.forEach(x=>{d.setFont("helvetica","italic");d.setFontSize(8.5);const pg=d.getNumberOfPages();
-      K.room(7);if(d.getNumberOfPages()>pg)th();
-      d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(40,40,40);d.text(fmtDate(x.dt),M,K.y);d.text(x.tn||"—",M+24,K.y);d.text(d.splitTextToSize(x.resp||"sem responsável",66)[0],M+48,K.y);d.text(String(x.ins),M+118,K.y);
-      const n=x.ncs.length;d.setFont("helvetica","bold");d.setTextColor(...(n?BADc:OKc));d.text(n?String(n):"Nenhuma",M+146,K.y);K.y+=4.6;
-      d.setDrawColor(235);d.line(M,K.y-1.4,W-M,K.y-1.4);K.y+=2.2})}
-  else K.txt("Nenhuma vistoria registrada no período.");
+  const OKc=[47,125,79],BADc=[185,60,60],AMc=[183,121,31],GR=[107,107,107];
+  K.y=pdfCab(d,"Relatório do mês · "+MESES[+mm-1]+" de "+ano);
+  const ref=m===today().slice(0,7)?today():m+"-"+pad(new Date(+ano,+mm,0).getDate());K.ref=ref;
+  const ab=st.abertas.slice().sort((a,b)=>a.since<b.since?-1:1),nA=ab.length,novas=st.all.filter(c=>c.since.slice(0,7)===m).length,dR=new Set(st.L.map(x=>x.dt)).size,o=ab[0];
+  K.room(34);d.setFont("times","bold");d.setFontSize(16);d.setTextColor(26,26,26);d.text(nA?(nA===1?"1 situação segue em aberto.":nA+" situações seguem em aberto."):"Nenhuma situação em aberto.",M,K.y);K.y+=7;
+  K.txt(dR+(dR===1?" dia com ronda registrada":" dias com ronda registrada")+" · "+novas+(novas===1?" situação nova":" situações novas")+(o?" · a mais antiga está aberta há "+dias(o.since,ref)+" dias ("+o.area+")":"")+".",{size:9.5,color:GR,gap:3});
+  const kp=[[dR,"dias com ronda",[26,26,26]],[novas,"situações novas",novas?AMc:OKc],[st.resolvidas.length,"resolvidas",OKc],[nA,"em aberto",nA?BADc:OKc]],bw=(W-2*M-9)/4;
+  K.room(26);kp.forEach(([n,t,c],j)=>{const x=M+j*(bw+3);d.setDrawColor(215);d.setLineWidth(.3);d.roundedRect(x,K.y-2,bw,20,2,2);d.setFont("times","bold");d.setFontSize(20);d.setTextColor(...c);d.text(String(n),x+bw/2,K.y+9,{align:"center"});d.setFont("helvetica","normal");d.setFontSize(9);d.setTextColor(...GR);d.text(t,x+bw/2,K.y+15,{align:"center"})});d.setLineWidth(.2);K.y+=28;
+  /* situações que precisam de decisão: sem providência, ou última providência aguardando orçamento/aprovação */
+  const prec=ab.filter(c=>{const la=(c.acoes||[]).slice(-1)[0];return !la||/aprova|or[cç]amento|decis|autoriz/i.test(la.txt)});
+  if(prec.length){K.sec("Pendências que precisam de decisão");prec.forEach(c=>{const la=(c.acoes||[]).slice(-1)[0],tl=la?d.splitTextToSize("Última providência ("+fmtDate(la.dt).slice(0,5)+"): "+la.txt,W-2*M-8):[];
+    K.room(24+tl.length*4.4);const y0=K.y;d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(26,26,26);d.text(c.area+" — "+CN[c.k],M+5,K.y);K.y+=5;
+    d.setFont("helvetica","normal");d.setFontSize(8.5);d.setTextColor(...AMc);d.text(la?"aguardando decisão · "+c.status:"nenhuma providência registrada",M+5,K.y);K.y+=4.8;
+    if(tl.length){d.setFontSize(9.5);d.setTextColor(60,60,60);d.text(tl,M+5,K.y);K.y+=tl.length*4.4+1}
+    d.setFontSize(9.5);d.setTextColor(26,26,26);d.text("Decisão: ______________________________   Responsável: ________________   Prazo: ___/___/_____",M+5,K.y+4);K.y+=8;
+    d.setFillColor(...AMc);d.rect(M,y0-4,1.1,K.y-y0+3,"F");K.y+=6})}
+  K.caso2=c=>{
+    const fech=!!c.closedAt,ac=c.acoes||[],n=dias(c.since,fech?c.closedAt:ref),col=fech?OKc:(ac.length?AMc:BADc),dd=n+(n===1?" dia":" dias"),
+      stt=fech?"Resolvida em "+fmtDate(c.closedAt).slice(0,5)+" · "+dd:(c.status==="em andamento"?"Em andamento":"Em aberto")+" há "+dd,pw=c.ph?58:0,tw=W-2*M-10-(pw?pw+4:0),
+      ln=c.n?d.splitTextToSize(c.n,tw):[],la=ac.map(a=>d.splitTextToSize(fmtDate(a.dt).slice(0,5)+" · "+(a.st==="resolvida"?"Resolvida":"Em andamento")+(a.resp?" ("+a.resp+")":"")+": "+a.txt,W-2*M-16)),ph=[].concat(...ac.map(a=>a.p||[])).slice(0,3),
+      hTop=Math.max(14+ln.length*4.6,pw?44:0)+3,h=hTop+4.5+(la.length?la.reduce((s,l)=>s+l.length*4.5,0):5)+(ph.length?27:0)+(fech?7:0)+8;
+    K.room(h);const y0=K.y;d.setFont("times","bold");d.setFontSize(12);d.setTextColor(26,26,26);d.text(c.area+" — "+CN[c.k],M+5,K.y);
+    d.setFont("helvetica","bold");d.setFontSize(9.5);d.setTextColor(...col);d.text(stt,W-M-3,K.y,{align:"right"});K.y+=5.5;
+    d.setFontSize(7.5);d.setTextColor(...GR);d.text("O QUE FOI VISTO",M+5,K.y);K.y+=4;d.setFont("helvetica","normal");d.setFontSize(9);d.text("Visto em "+fmtDate(c.since).slice(0,5)+" · registrado em "+c.days+(c.days===1?" ronda":" rondas"),M+5,K.y);K.y+=4.6;
+    d.setFontSize(10);d.setTextColor(40,40,40);if(ln.length)d.text(ln,M+5,K.y);
+    if(pw){try{const pr=d.getImageProperties(c.ph),r=Math.min(pw/pr.width,40/pr.height);d.addImage(c.ph,"JPEG",W-M-3-pr.width*r,y0+2,pr.width*r,pr.height*r)}catch(e){}}
+    K.y=y0+hTop;d.setFont("helvetica","bold");d.setFontSize(7.5);d.setTextColor(...GR);d.text("O QUE FOI FEITO",M+5,K.y);K.y+=4.5;d.setFont("helvetica","normal");d.setFontSize(9.5);
+    if(la.length)ac.forEach((a,i)=>{d.setFillColor(...(a.st==="resolvida"?OKc:AMc));d.circle(M+6.2,K.y-1.1,.9,"F");d.setTextColor(40,40,40);d.text(la[i],M+9,K.y);K.y+=la[i].length*4.5});
+    else{d.setFont("helvetica","italic");d.setTextColor(...(fech?GR:BADc));d.text(fech?"Sem providência registrada; a área voltou a ficar conforme na vistoria.":"Nenhuma providência registrada até agora.",M+9,K.y);K.y+=5}
+    if(ph.length){K.y+=1;ph.forEach((u,j)=>{const cx=M+9+j*33;try{d.setDrawColor(225);d.setFillColor(247,246,244);d.rect(cx,K.y,30,24,"FD");const pr=d.getImageProperties(u),r=Math.min(28/pr.width,22/pr.height),w=pr.width*r,h2=pr.height*r;d.addImage(u,"JPEG",cx+(30-w)/2,K.y+(24-h2)/2,w,h2)}catch(e){}});K.y+=26}
+    if(fech){d.setFont("helvetica","bold");d.setFontSize(9.5);d.setTextColor(...OKc);d.text("Resolvida em "+fmtDate(c.closedAt)+" — "+(c.via==="manual"?"providência registrada.":"confirmada na vistoria, com a área conforme."),M+5,K.y+2);K.y+=7}
+    d.setFillColor(...col);d.rect(M,y0-4,1.1,K.y-y0+3,"F");K.y+=7};
+  K.sec("Resolvido neste mês");if(st.resolvidas.length)st.resolvidas.forEach(K.caso2);else K.txt("Nenhuma situação foi resolvida neste mês.",{gap:4});
+  K.sec("Ainda em aberto");if(nA)ab.forEach(K.caso2);else K.txt("Nenhuma situação em aberto.",{gap:4});
+  const comP=new Set(),vist=new Set();st.L.forEach(x=>{(x.ncs||[]).forEach(n=>comP.add(n.area));Object.keys(x.st||{}).forEach(a=>vist.add(a))});const sem=[...vist].filter(a=>!comP.has(a));
+  K.sec("Vistoriadas sem nenhum problema");K.txt(sem.length?sem.join(" · ")+".":"Nenhuma área foi vistoriada sem registro de problema.",{gap:3});
+  const ob=st.L.filter(x=>x.obs);if(ob.length){K.sec("Observações das rondas");ob.forEach(x=>K.txt(fmtDate(x.dt).slice(0,5)+" ("+(x.tn||"—")+") · "+(x.resp||"sem responsável")+": "+x.obs,{size:9.5,gap:1.5}))}
   {const ex=dels().filter(z=>{const d0=z.dt||String(z.k||"").split("|")[0]||"";return d0.slice(0,7)===m||(z.ts&&mesDe(z.ts)===m)}).sort((p,q)=>(p.ts||0)-(q.ts||0));
    if(ex.length){K.y+=4;K.sec("Vistorias excluídas do histórico");
      ex.forEach(z=>{const p=String(z.k||"").split("|"),d0=z.dt||p[0],t0=z.tn!==undefined?z.tn:p[1];
        K.txt("Vistoria de "+(d0?fmtDate(d0):"data não registrada")+(t0?" ("+t0+")":"")+(z.resp?", de "+z.resp:"")+(z.nc!==undefined?", com "+z.nc+(z.nc===1?" não conformidade":" não conformidades"):"")+", excluída em "+(z.ts?stampTs(z.ts):"data não registrada")+(z.dn?" (aparelho "+z.dn+")":"")+".",{size:9.5,gap:1.5})})}}
-  /* visto do Gerente Predial */
-  K.room(30);K.txt("Relatório de acompanhamento de "+MESES[+mm-1]+" de "+ano+" · "+st.L.length+(st.L.length===1?" vistoria":" vistorias")+" · "+st.abertas.length+(st.abertas.length===1?" pendência em aberto":" pendências em aberto")+".",{size:9.5,color:[107,107,107]});K.y+=14;d.setDrawColor(26,26,26);d.setLineWidth(.2);d.line(M,K.y,M+80,K.y);d.line(M+100,K.y,M+150,K.y);
+  {const src=[...new Set(st.L.map(x=>x.dv?(x.dn||"aparelho sem nome"):"aparelho não identificado"))];if(src.length)K.txt("Origem dos registros: "+src.join(", ")+". Registros de aparelhos cujo histórico não foi importado não estão incluídos.",{size:8.5,font:"italic",color:GR,gap:2})}
+  K.room(30);K.y+=14;d.setDrawColor(26,26,26);d.setLineWidth(.2);d.line(M,K.y,M+80,K.y);d.line(M+100,K.y,M+150,K.y);
   d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(26,26,26);d.text("Visto do Gerente Predial",M,K.y+5);d.text("Data",M+100,K.y+5);
-  pdfRodape(d,"L’Essence Mooca · Relatório de acompanhamento · "+MESES[+mm-1]+"/"+ano);
+  pdfRodape(d,"L’Essence Mooca · Relatório do mês · "+MESES[+mm-1]+"/"+ano);
+  return d.output("blob");
+}
+/* ---- Relatório executivo: painel (página 1) + situação por área (página 2). Usa só dados já registrados; metas provisórias. ---- */
+function confDe(L,area){let ok=0,t=0;L.forEach(x=>Object.keys(x.st||{}).forEach(ar=>{if(area&&ar!==area)return;CR.forEach(k=>{const v=(x.st[ar]||{})[k];if(v==="ok"){ok++;t++}else if(v==="nc")t++})}));return{ok,t,p:t?100*ok/t:null}}
+const pcs=v=>v==null?"—":v.toFixed(1).replace(".",",")+"%",dmes=(y,m)=>new Date(y,m,0).getDate(),trunc=(s,n)=>s.length>n?s.slice(0,n-1)+"…":s;
+function makeExec(m){
+  const {jsPDF}=window.jspdf,d=new jsPDF({unit:"pt",format:"a4"}),W=595.28,H=841.89,M=40,[ano,mm]=m.split("-"),t0=new Date(+ano,+mm-2,1),pm=t0.getFullYear()+"-"+pad(t0.getMonth()+1),pmEnd=pm+"-"+pad(dmes(t0.getFullYear(),t0.getMonth()+1));
+  usePdfFonts(d);
+  const G=[201,169,97],INK=[26,26,26],MU=[107,107,107],LN=[229,229,224],BG=[247,246,244],OK=[47,125,79],AM=[183,121,31],BAD=[185,60,60],WH=[255,255,255];
+  const ref=m===today().slice(0,7)?today():m+"-"+pad(dmes(+ano,+mm)),nd=m===today().slice(0,7)?new Date().getDate():dmes(+ano,+mm);
+  const L=monthEntries(m),Lp=monthEntries(pm),all=cases(m+"-31"),ab=all.filter(c=>!c.closedAt),abp=cases(pmEnd).filter(c=>!c.closedAt);
+  const Y=y=>H-y,F={PF:["times","bold"],LT:["helvetica","normal"],LB:["helvetica","bold"]};
+  const T=(x,y,s,f,sz,c,al)=>{d.setFont(F[f][0],F[f][1]);d.setFontSize(sz);d.setTextColor(...c);d.text(String(s),x,Y(y),{align:al||"left"})};
+  const P=(x,y,s,f,sz,w,c,lh)=>{d.setFont(F[f][0],F[f][1]);d.setFontSize(sz);d.splitTextToSize(s,w).forEach(l=>{T(x,y,l,f,sz,c);y-=lh});return y};
+  const R=(x,y,w,h,fc,sc,r)=>{if(fc)d.setFillColor(...fc);if(sc){d.setDrawColor(...sc);d.setLineWidth(.6)}d.roundedRect(x,Y(y+h),w,h,r||0,r||0,fc&&sc?"FD":fc?"F":"S")};
+  const Ln=(x1,y1,x2,y2,c,w)=>{d.setDrawColor(...c);d.setLineWidth(w);d.line(x1,Y(y1),x2,Y(y2))};
+  const Dot=(x,y,r,c)=>{d.setFillColor(...c);d.circle(x,Y(y),r,"F")};
+  const Tri=(x,y,up,c)=>{d.setFillColor(...c);up?d.triangle(x,Y(y),x+6,Y(y),x+3,Y(y+6),"F"):d.triangle(x,Y(y+6),x+6,Y(y+6),x+3,Y(y),"F")};
+  const cab=(sub,tag)=>{d.setDrawColor(...G);d.setLineWidth(1.1);d.circle(M+16,52,16,"S");d.setLineWidth(.4);d.circle(M+16,52,13.6,"S");
+    T(M+16,H-57,"LE","PF",14,G,"center");T(M+44,H-50,"L’Essence Mooca","PF",22,INK);T(M+44,H-66,sub,"LT",10,MU);T(W-M,H-64,tag,"LT",8.5,MU,"right");Ln(M,H-80,W-M,H-80,G,1);Ln(M,H-82.4,W-M,H-82.4,G,.3)};
+  const rod=n=>{Ln(M,52,W-M,52,LN,.4);T(M,40,"L’Essence Mooca · Relatório Gerencial Mensal · "+MESES[+mm-1]+"/"+ano,"LT",8,MU);T(W-M,40,"Página "+n+" de 2","LT",8,MU,"right")};
+  /* ---- números ---- */
+  const cf=confDe(L),cfp=confDe(Lp),perA=n=>confDe(L,n),perAp=n=>confDe(Lp,n),idade=c=>dias(c.since,ref);
+  const diasV=new Set(L.map(x=>x.dt)).size,diasP=new Set(Lp.map(x=>x.dt)).size,a30=ab.filter(c=>idade(c)>30).length,a30p=abp.filter(c=>dias(c.since,pmEnd)>30).length;
+  const nRisco=L.reduce((a,x)=>a+(x.ncs||[]).filter(n=>riscoDe(n.n).length||n.gv==="risco").length,0),novos=all.filter(c=>c.since.slice(0,7)===m).length,semV=IDX.filter(i=>!L.some(x=>x.st&&x.st[AREAS[i]])).length;
+  const nivel=cf.p!==null&&cf.p<90?"CRÍTICO":(cf.p===null||cf.p<95||a30>0||nRisco>0)?"ATENÇÃO":"NORMAL",nc=nivel==="CRÍTICO"?BAD:nivel==="ATENÇÃO"?AM:OK,tint=nivel==="CRÍTICO"?[250,232,232]:nivel==="ATENÇÃO"?[251,243,226]:[230,244,236];
+  /* ---- página 1 ---- */
+  cab("Relatório Gerencial Mensal · "+MESES[+mm-1]+" de "+ano,"Para a reunião do corpo diretivo");
+  let y=H-100;const pt=[cf.p===null?"sem verificações no período":"conformidade de "+pcs(cf.p)+(cf.p<95?", abaixo da meta provisória de 95%":""),a30?a30+(a30===1?" pendência com mais de 30 dias":" pendências com mais de 30 dias"):"",nRisco?nRisco+(nRisco===1?" ocorrência de risco registrada":" ocorrências de risco registradas"):"",semV?semV+" áreas sem vistoria no período":""].filter(Boolean);
+  const txt=pt.length===1&&cf.p>=95?"Conformidade de "+pcs(cf.p)+", dentro da meta provisória, sem pendências antigas e sem ocorrências de risco.":pt[0][0].toUpperCase()+pt.join("; ").slice(1)+".";
+  R(M,y-52,W-2*M,52,tint,null,6);R(M,y-52,3.5,52,nc);T(M+16,y-20,"Situação geral: "+nivel,"PF",15,nc);P(M+16,y-34,txt,"LT",9.5,W-2*M-32,INK,13);
+  y-=70;const df=(a,b)=>a-b,sg=cfp.p!=null&&cf.p!=null?cf.p-cfp.p:null,dA=ab.length-abp.length,d30=a30-a30p,dD=diasV-diasP;
+  const dm=n=>(n===0?"igual ao mês ant.":Math.abs(n)+(n>0?" a mais":" a menos")+" vs mês ant.");
+  const K=[["Conformidade",pcs(cf.p),"meta provisória: 95%",sg===null?"sem mês anterior":Math.abs(sg).toFixed(1).replace(".",",")+" p.p. vs mês ant.",sg===null?null:sg>=0,sg===null?null:sg>=0,cf.p===null?MU:cf.p>=95?OK:cf.p>=90?AM:BAD],
+    ["Dias com vistoria",String(diasV),"de "+nd+" dias no período",dD===0?"igual ao mês ant.":Math.abs(dD)+" vs mês ant.",dD>=0,null,MU],
+    ["Pendências abertas",String(ab.length),"ao fim do período",dm(dA),dA>0,dA<=0,ab.length?AM:OK],
+    ["Pendências com +30 dias",String(a30),"meta provisória: nenhuma",dm(d30),d30>0,d30<=0,a30?BAD:OK],
+    ["Ocorrências de risco",String(nRisco),"frases de risco citadas",novos+" problemas novos",null,null,nRisco?BAD:OK]];
+  const kw=(W-2*M-32)/5;
+  K.forEach(([lb,v,sub,dl,up,good,sc],i)=>{const x=M+i*(kw+8);R(x,y-96,kw,96,WH,LN,7);Dot(x+kw-11,y-12,3.6,sc);d.splitTextToSize(lb,kw-26).forEach((l,j)=>T(x+9,y-15-j*9.5,l,"LT",8,MU));
+    T(x+9,y-52,v,"PF",24,INK);T(x+9,y-65,sub,"LT",7.5,MU);const cc=good===true?OK:good===false?BAD:MU;if(up!==null)Tri(x+9,y-83,up,cc);T(x+(up!==null?19:9),y-82.5,dl,"LT",7.3,cc)});
+  y-=116;T(M,y,"Conformidade nos últimos seis meses","PF",11.5,INK);y-=12;
+  const cw=300,gx0=M+28,gx1=M+cw-6,gy0=y-120,gy1=y-14,ms=Array.from({length:6},(_,i)=>{const t=new Date(+ano,+mm-1-(5-i),1);return t.getFullYear()+"-"+pad(t.getMonth()+1)}),ser=ms.map(k=>confDe(monthEntries(k)).p),vs=ser.filter(v=>v!=null),lo=vs.length?Math.min(90,Math.floor(Math.min(...vs)/5)*5):90,YY=v=>gy0+(v-lo)/(100-lo)*(gy1-gy0);
+  [...new Set([lo,95,100])].forEach(g=>{Ln(gx0,YY(g),gx1,YY(g),LN,.3);T(gx0-4,YY(g)-3,g+"%","LT",7.5,MU,"right")});
+  d.setLineDashPattern([3,2],0);Ln(gx0,YY(95),gx1,YY(95),G,.9);d.setLineDashPattern([],0);T(gx1,YY(95)+3,"meta provisória 95%","LB",7.5,G,"right");
+  const xs=ser.map((_,i)=>gx0+14+i*(gx1-gx0-28)/5);for(let i=0;i<5;i++)if(ser[i]!=null&&ser[i+1]!=null)Ln(xs[i],YY(ser[i]),xs[i+1],YY(ser[i+1]),INK,1.4);
+  ser.forEach((v,i)=>{if(v!=null)Dot(xs[i],YY(v),i===5?3.2:2.4,i===5?AM:INK);T(xs[i],gy0-11,MESES[+ms[i].slice(5)-1].slice(0,3).toLowerCase(),"LT",7.5,MU,"center")});
+  if(ser[5]!=null)T(xs[5],YY(ser[5])-13,pcs(ser[5]),"LB",8.5,AM,"center");
+  const px=M+cw+22,pw=W-M-px,mx=Math.max(1,ab.length);T(px,y+12,"Pendências abertas por idade","PF",11.5,INK);
+  [["Até 7 dias",ab.filter(c=>idade(c)<=7).length,OK],["8 a 30 dias",ab.filter(c=>idade(c)>7&&idade(c)<=30).length,AM],["Mais de 30 dias",a30,BAD]].forEach(([lb,n,col],i)=>{const yy=y-26-i*34;T(px,yy,lb,"LT",9,INK);R(px,yy-17,pw,9,[239,237,232],null,3);if(n)R(px,yy-17,pw*n/mx,9,col,null,3);T(px+pw,yy,n,"LB",10,col,"right")});
+  T(px,y-122,"Total: "+ab.length+" · idade desde a 1ª ocorrência","LT",7.5,MU);
+  y=gy0-34;T(M,y,"Destaques do mês","PF",11.5,INK);y-=14;
+  const ra=AREAS.map(n=>{const a=perA(n),b=perAp(n);return{n,a:a.p,b:b.p,ta:a.t,tb:b.t}}).filter(r=>r.ta>=3),cmp=r=>r.b!=null&&r.tb>=3,mel=ra.filter(r=>cmp(r)&&r.a-r.b>=2).sort((p,q)=>(q.a-q.b)-(p.a-p.b)).slice(0,2),pio=ra.filter(r=>cmp(r)&&r.b-r.a>=2).sort((p,q)=>(q.b-q.a)-(p.b-p.a)).slice(0,2),baixo=ra.filter(r=>r.a<90).sort((p,q)=>p.a-q.a).slice(0,3);
+  const rk={};all.forEach(c=>(rk[c.key]=rk[c.key]||[]).push(c));const reinc=Object.values(rk).filter(a=>a.length>=2&&a.some(c=>c.since.slice(0,7)===m)).slice(0,2);
+  const dest=[];if(nRisco)dest.push([BAD,nRisco+" ocorrência(s) de risco citada(s) nas vistorias; confira o tratamento no relatório detalhado."]);
+  if(mel.length)dest.push([OK,"Melhorou: "+mel.map(r=>r.n+" ("+pcs(r.b)+" para "+pcs(r.a)+")").join("; ")+"."]);if(pio.length)dest.push([AM,"Piorou: "+pio.map(r=>r.n+" ("+pcs(r.b)+" para "+pcs(r.a)+")").join("; ")+"."]);
+  if(baixo.length)dest.push([AM,"Abaixo de 90% de conformidade: "+baixo.map(r=>r.n+" ("+pcs(r.a)+")").join("; ")+"."]);if(reinc.length)dest.push([AM,"Reincidência (voltou depois de resolvido): "+reinc.map(a=>a[0].area+" — "+CN[a[0].k]+" ("+a.length+" vezes)").join("; ")+"."]);
+  if(semV)dest.push([MU,semV+" de "+AREAS.length+" áreas não tiveram vistoria neste período (ver anexo)."]);if(!dest.length)dest.push([MU,"Sem destaques relevantes no período."]);
+  dest.slice(0,5).forEach(([c,t])=>{R(M,y-4.5,5,5,c);y=P(M+13,y-1,t,"LT",9.2,W-2*M-13,INK,12)-3});
+  y-=8;T(M,y,"Pendências em aberto que exigem atenção (as mais antigas)","PF",11.5,INK);y-=8;R(M,y-16,W-2*M,16,BG);[["Item",M+8],["Situação",M+230],["Dias",M+480]].forEach(([t,x])=>T(x,y-11.5,t,"LB",8,MU));y-=16;
+  if(!ab.length){T(M+8,y-12,"Nenhuma pendência em aberto ao fim do período.","LT",9,MU);y-=22}
+  ab.slice().sort((p,q)=>p.since<q.since?-1:1).slice(0,4).forEach(c=>{const n=idade(c),col=n>30?BAD:n>7?AM:OK,la=(c.acoes||[]).slice(-1)[0],sit=c.status[0].toUpperCase()+c.status.slice(1)+(la?" · "+la.txt:"");
+    Ln(M,y-24,W-M,y-24,LN,.3);R(M,y-22,2.5,20,col);T(M+8,y-10,trunc(c.area+" — "+CN[c.k],42),"LB",8.8,INK);T(M+230,y-10,trunc(sit,46),"LT",8.8,INK);T(M+480,y-10,n,"LB",8.8,col);y-=26});
+  const nDv=new Set(L.map(x=>x.dv||"?")).size;P(M,y-14,"Base de dados: "+nDv+(nDv===1?" aparelho":" aparelhos")+" · "+fmtDate(L[0].dt)+" a "+fmtDate(L[L.length-1].dt)+" · "+L.length+" vistorias · "+novos+" problemas distintos abertos no período. Metas provisórias. Cobertura prevista e prazo por pendência ainda não são calculados (dependem de frequência esperada por área e de prazo registrado).","LT",7.8,W-2*M,MU,10);
+  T(M,76,"Visto do Gerente Predial: ______________________________","LT",9,INK);T(W-M,76,"Data: ____ / ____ / ______","LT",9,INK,"right");rod(1);
+  /* ---- página 2 ---- */
+  d.addPage();cab("Situação por área · "+MESES[+mm-1]+" de "+ano,"Anexo ao relatório gerencial");y=H-104;T(M,y,"Todas as áreas, inclusive as que não tiveram vistoria","PF",12,INK);y-=12;
+  R(M,y-16,W-2*M,16,INK);[["Área",M+8,"left"],["Vistorias",M+262,"right"],["% conforme",M+328,"right"],["Problemas",M+390,"right"],["Abertas",M+442,"right"],["Situação",M+462,"left"]].forEach(([t,x,al])=>T(x,y-11.2,t,"LB",8,WH,al));y-=16;
+  const row=(k,nm,n,c,pr,aa)=>{if(k%2===0)R(M,y-14.5,W-2*M,14.5,BG);const ok=n>0&&c.p!==null,col=!ok?MU:(c.p<90||aa>=2)?BAD:(c.p<95||aa>=1)?AM:OK,st=!ok?(n?"Sem verificação":"Sem vistoria"):col===BAD?"Crítico":col===AM?"Atenção":"Normal";
+    T(M+8,y-10.5,trunc(nm,46),"LT",8.2,INK);T(M+262,y-10.5,n,"LT",8.2,n?INK:BAD,"right");T(M+328,y-10.5,ok?pcs(c.p):"—","LB",8.2,!ok?MU:c.p>=95?OK:c.p>=90?AM:BAD,"right");T(M+390,y-10.5,n?pr:"—","LT",8.2,INK,"right");T(M+442,y-10.5,n?aa:"—",aa?"LB":"LT",8.2,aa?BAD:INK,"right");Dot(M+468,y-7.4,3.2,col);T(M+476,y-10.5,st,n?"LT":"LB",8.2,n?INK:col);y-=14.5};
+  ORDER.forEach((i,k)=>{const nm=AREAS[i];row(k,nm,L.filter(x=>x.st&&x.st[nm]).length,perA(nm),all.filter(c=>c.area===nm&&c.since.slice(0,7)===m).length,ab.filter(c=>c.area===nm).length)});
+  const ox=all.filter(c=>!AREAS.includes(c.area));if(ox.length){const oa=ox.filter(c=>!c.closedAt).length;T(M+8,y-10.5,"Outras áreas (não listadas)","LT",8.2,INK);T(M+390,y-10.5,ox.filter(c=>c.since.slice(0,7)===m).length,"LT",8.2,INK,"right");T(M+442,y-10.5,oa,oa?"LB":"LT",8.2,oa?BAD:INK,"right");y-=14.5}
+  P(M,y-16,"Critério do semáforo (provisório): Normal = conformidade de 95% ou mais e nenhuma pendência. Atenção = abaixo de 95% ou com uma pendência. Crítico = abaixo de 90% ou duas ou mais pendências. Sem vistoria = a área não foi marcada em nenhuma vistoria do período; isso não significa, por si só, falha, pois outras equipes também rondam o condomínio.","LT",7.8,W-2*M,MU,10);rod(2);
   return d.output("blob");
 }
 async function entregar(blob,name,mime,titulo,texto){
@@ -816,7 +873,7 @@ function formAcao(c,done){
     b.onclick=()=>{st=v;seg.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.s===st)));fillQ()};seg.appendChild(b)});
   const ta=document.createElement("textarea");ta.placeholder="O que foi feito? (obrigatório)";
   const qw=document.createElement("div");function fillQ(){qw.innerHTML="";const r=chipRow(RP.f[st][c.k==="x"?"u":c.k].concat(RP.f[st].x),ta,"Respostas prontas (toque para adicionar)");if(r)qw.appendChild(r)}fillQ();
-  const dt=document.createElement("input");dt.type="date";dt.value=today();dt.max=today();const dtw=brWrap(dt,"date");
+  const dt=document.createElement("input");dt.type="date";dt.value=today();dt.max=today();
   const ph=document.createElement("div");ph.className="ph";
   const draw=()=>{ph.innerHTML="";fotos.forEach(u=>{const i=new Image();i.src=u;i.alt="Foto da providência";ph.appendChild(i)});
     if(fotos.length<2)[["Tirar foto",true],["Da galeria",false]].forEach(([tx,cam])=>{const b=document.createElement("button");b.className="addph";b.textContent=tx;
@@ -831,7 +888,7 @@ function formAcao(c,done){
     const cur=ld(AK)||[];cur.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),key:c.key,area:c.area,k:c.k,dt:dt.value||today(),tm:hhmm(),resp:S.resp.trim(),st,txt:ta.value.trim(),p:fotos,ts:stampNow()});
     if(sv(AK,cur)){toast("Providência registrada.");done()}
   };
-  row.append(cx,ok);f.append(lab("Situação"),seg,lab("O que foi feito"),qw,ta,lab("Data da providência"),dtw,ph,row);
+  row.append(cx,ok);f.append(lab("Situação"),seg,lab("O que foi feito"),qw,ta,lab("Data da providência"),dt,ph,row);
   return f;
 }
 function linhaCaso(c){
@@ -926,7 +983,14 @@ $("hrel").onclick=()=>{
   if(!window.jspdf){toast("A biblioteca de PDF não carregou. Verifique a conexão.");return}
   if(!statsMes(m).L.length){toast("Não há vistorias enviadas neste mês.");return}
   if(!avisoJuncao(m))return;
-  try{entregar(makeReport(m),"relatorio-acompanhamento-"+m+".pdf","application/pdf","Relatório de acompanhamento · L’Essence Mooca","Relatório de acompanhamento de "+MESES[+m.split("-")[1]-1]+" de "+m.split("-")[0])}catch(e){toast("Não foi possível gerar o relatório: "+(e&&e.message?e.message:e),9000)}
+  try{entregar(makeReport(m),"relatorio-do-mes-"+m+".pdf","application/pdf","Relatório do mês · L’Essence Mooca","Relatório do mês de "+MESES[+m.split("-")[1]-1]+" de "+m.split("-")[0])}catch(e){toast("Não foi possível gerar o relatório: "+(e&&e.message?e.message:e),9000)}
+};
+$("hexec").onclick=()=>{
+  const m=$("hm").value||today().slice(0,7);
+  if(!window.jspdf){toast("A biblioteca de PDF não carregou. Verifique a conexão.");return}
+  if(!statsMes(m).L.length){toast("Não há vistorias enviadas neste mês.");return}
+  if(!avisoJuncao(m))return;
+  try{entregar(makeExec(m),"relatorio-executivo-"+m+".pdf","application/pdf","Relatório executivo · L’Essence Mooca","Relatório executivo de "+MESES[+m.split("-")[1]-1]+" de "+m.split("-")[0])}catch(e){toast("Não foi possível gerar o relatório: "+(e&&e.message?e.message:e),9000)}
 };
 $("hexp").onclick=()=>{
   if(!monthEntries().length){toast("Não há vistorias enviadas neste mês.");return}
@@ -968,7 +1032,6 @@ $("pinbtn").onclick=mudarPin;
 async function limparExcl(){
   const n=dels().length;
   if(!n){toast("Não há exclusões registradas.");return}
-  {const pd=pinData();if(!pd||!pd.h){toast("Defina um PIN em Histórico > Proteção antes de limpar o registro de exclusões.",7000);return}}
   if(!confirm("Limpar o registro de "+n+(n===1?" exclusão":" exclusões")+" deste aparelho?\n\nEle deixa de aparecer nos relatórios. As vistorias excluídas não voltam. Use só para descartar testes.\n\nDica: faça um backup antes. Backups antigos ainda guardam o registro e, ao serem importados, ele volta."))return;
   if(!(await pinOk("Digite o PIN para limpar o registro de exclusões.")))return;
   if(sv(XK,[])){toast("Registro de exclusões limpo.");renderHist()}
@@ -989,7 +1052,7 @@ $("open").onclick=()=>show("app");$("back").onclick=()=>show("home");
 loadPdfFonts();
 KV.onError=()=>toast("Não foi possível guardar no aparelho. A memória pode estar cheia. Faça um backup e libere espaço.",8000);
 $("stg").textContent=KV.mode==="idb"?(KV.persisted?"Armazenamento do aparelho: protegido contra limpeza automática.":"Armazenamento do aparelho: o navegador pode apagar os dados se faltar espaço. Faça backups com frequência."):"Armazenamento em modo simples, com limite menor. Faça backups com frequência.";
-brWrap($("dt"),"date");brWrap($("tm"),"time");brWrap($("hm"),"month");refreshOpen();fill();build();show("home");
+refreshOpen();fill();build();show("home");
 
 })();
 
