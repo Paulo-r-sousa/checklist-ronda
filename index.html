@@ -140,6 +140,23 @@ header h1{font-size:24px;font-weight:600;letter-spacing:0}.sub{font-size:13px;op
 .foot{background:color-mix(in srgb,var(--card) 92%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 input[type=text],input[type=date],input[type=time],input[type=month],select,textarea{border-radius:10px;background:var(--card)}
 .stale{border-left:3px solid var(--gold)}
+
+/* ===== v27 · fluxo do inspetor em 390 px ===== */
+.area{padding:10px 12px;margin-bottom:8px}
+.ah{margin-bottom:0}.area>div:not(.ah){margin-top:8px}
+.sum[hidden]{display:none}
+.sum{gap:0 10px;font-size:12.5px;line-height:1.35}
+.det textarea{scroll-margin-top:70px}
+textarea.flash{animation:flash .7s ease-out}
+@keyframes flash{from{box-shadow:0 0 0 3px var(--gold);background:color-mix(in srgb,var(--gold) 18%,var(--card))}to{box-shadow:0 0 0 0 transparent}}
+.qr{margin:4px 0 0}.qr .lb{margin-bottom:2px;font-size:12px}
+.qrr{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -12px 0 0;padding:0 24px 2px 0;
+  -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent)}
+.qrr::-webkit-scrollbar{display:none}
+.qrr button{flex:none;white-space:nowrap}
+.det,.fa{grid-template-columns:minmax(0,1fr)}.det>*,.fa>*,.qr,.rp,.xe{min-width:0}
+.fa .qrr,.xe .qrr{margin-right:0}
+.rp{margin:0}.rp>summary{min-height:40px}
 </style>
 </head>
 <body>
@@ -321,7 +338,11 @@ const ELEV=(()=>{const sv=f=>"Elevador de serviço ("+f+")";return{
   "Lobby de entrada e elevador":["Elevador do lobby"]}})();
 function togglePhrase(ta,ph){let t=ta.value.trim();const f=ph+".";
   if(t.includes(f))t=t.replace(f,"").replace(/\s{2,}/g," ").trim();else t=t?(/[.!?:]$/.test(t)?t+" ":t+". ")+f:f;
-  ta.value=t;ta.dispatchEvent(new Event("input"))}
+  ta.value=t;ta.dispatchEvent(new Event("input"));grow(ta);flashTa(ta)}
+function grow(ta){ta.style.height="auto";ta.style.height=Math.min(Math.max(ta.scrollHeight+2,64),180)+"px"}
+function flashTa(ta){ta.classList.remove("flash");void ta.offsetWidth;ta.classList.add("flash");
+  const r=ta.getBoundingClientRect(),top=(document.querySelector(".bar")||{offsetHeight:0}).offsetHeight+8,bot=innerHeight-80;
+  if(r.top<top||r.bottom>bot)ta.scrollIntoView({block:"center",behavior:"smooth"})}
 const INV={AC:[["Cardio",["0060 · Esteira (RT250 iLED)", "0061 · Esteira (RT250 iLED)", "0062 · Esteira (LX160 G4)", "0063 · Elíptico (LXE G4)", "0064 · Simulador de remo (Matrix)", "0065 · Bicicleta spinning (Matrix)", "0066 · Bicicleta spinning (Matrix)", "0067 · Bicicleta ergométrica horizontal (Vision Fitness)", "0068 · Bicicleta ergométrica vertical (LXU G4)", "0069 · Bicicleta ergométrica vertical (LXU G4)"]],
 ["Musculação · máquinas",["0070 · Hack horizontal (Supreme)", "0071 · Hack vertical (Supreme)", "0072 · Adutora e abdutora (Matrix)", "0073 · Glúteo máquina (Matrix)", "0074 · Desenvolvimento de ombro (Supreme)", "0075 · Supino declinado máquina (Supreme)", "0076 · Pulley (Supreme)", "0077 · Pulley (Matrix)", "0078 · Remada sentada (Supreme)", "0082 · Peck fly (Matrix)", "0084 · Scoot máquina (Matrix)", "0085 · Cross over angulado (Life Fitness)", "0086 · Leg press horizontal (Life Fitness)", "0087 · Mesa flexora (Life Fitness)", "0088 · Cadeira flexora (Matrix)", "0090 · Monocross (Matrix)"]],
 ["Barras e bancos",["0079 · Smith (Life Fitness)", "0080 · Banco livre articulado", "0081 · Supino reto", "0083 · Banco articulado (Supreme)", "0089 · Banco articulado (Supreme)"]],
@@ -337,6 +358,17 @@ function chipRow(opts,ta,title){
   const sync=()=>row.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(ta.value.includes(x.textContent+"."))));
   opts.forEach(o=>{const b=document.createElement("button");b.type="button";b.textContent=o;b.onclick=()=>{togglePhrase(ta,o);sync()};row.appendChild(b)});
   ta.addEventListener("input",sync);sync();w.appendChild(row);return w}
+const SHORT={l:"Limp.",o:"Org.",g:"Integr."};
+function areaSum(d,i){
+  const nm=AREAS[i],a=S.a[i]||{},sm=d.querySelector(".sum");sm.textContent="";
+  d.className="area"+(hasNC(a)?" bad":fullk(a)?" done":"");
+  if(!anyk(a)){const pe=OPENP.some(o=>o.area===nm);sm.textContent=pe?"Há pendência aberta. Toque para vistoriar":"";sm.hidden=!pe;return}
+  sm.hidden=false;
+  const chip=(t,cor)=>{const c=document.createElement("span");c.className="chip";c.textContent=t;if(cor)c.style.color=cor;sm.appendChild(c)};
+  CR.forEach(k=>chip(SHORT[k]+" "+ab(a[k]),a[k]==="ok"?"var(--ok)":a[k]==="nc"?"var(--bad)":""));
+  if(!fullk(a))chip("incompleta","var(--gd)");
+  if(hasNC(a)&&!(a.n||"").trim())chip("falta observação","var(--bad)");
+}
 function build(){
   const L=$("list");L.innerHTML="";
   ORDER.forEach(i=>{const nm=AREAS[i];
@@ -346,12 +378,7 @@ function build(){
     d.id="a"+i;d.className="area"+(hasNC(a)?" bad":fullk(a)?" done":"");
     d.innerHTML='<div class="ah"><button class="an" aria-expanded="'+(OPEN===i)+'"><span class="ico" aria-hidden="true">'+ico(nm)+'</span><span class="nm"></span><span class="sum"></span><span class="chev" aria-hidden="true"></span></button>'+(anyk(a)?'':'<button class="lnk">Tudo conforme</button>')+'</div>';
     d.querySelector(".nm").textContent=nm;
-    const sm=d.querySelector(".sum");if(anyk(a)){
-      const chip=(t,cor)=>{const c=document.createElement("span");c.className="chip";c.textContent=t;if(cor)c.style.color=cor;sm.appendChild(c)};
-      CR.forEach(k=>chip(CN[k]+" "+ab(a[k]),a[k]==="ok"?"var(--ok)":a[k]==="nc"?"var(--bad)":""));
-      if(!fullk(a))chip("incompleta","var(--gd)");
-      if(hasNC(a)&&!(a.n||"").trim())chip("falta observação","var(--bad)");
-    }else sm.textContent=OPENP.some(o=>o.area===nm)?"Há pendência aberta. Toque para vistoriar":"Toque para vistoriar";
+    areaSum(d,i);
     d.querySelector(".an").onclick=()=>{OPEN=OPEN===i?-1:i;build();if(OPEN===i)$("a"+i).scrollIntoView({block:"start"})};
     const body=document.createElement("div");body.hidden=OPEN!==i;
     if(anyk(a)){const lb=document.createElement("button");lb.className="lnk";lb.textContent="Desmarcar esta área";lb.onclick=()=>{delete S.a[i];save();build()};body.appendChild(lb)}
@@ -368,8 +395,8 @@ function build(){
       x.innerHTML='<textarea placeholder="Observações e providências'+(hasNC(a)?' (obrigatório)':'')+'"></textarea><div class="ph"></div>';
       const ta=x.querySelector("textarea");ta.value=a.n||"";if(hasNC(a)&&!ta.value.trim())ta.style.borderColor="var(--bad)";
       const rkEl=document.createElement("div");rkEl.className="hint";rkEl.style.cssText="color:var(--bad);font-weight:700";ta.after(rkEl);const rkUp=()=>{const r=riscoDe(ta.value);rkEl.textContent=r.length?"RISCO: "+r.map(p=>RISCO[p]).join(" ")+" Avise já o Gerente Predial e o encarregado.":""};rkUp();
-      ta.oninput=()=>{A(i).n=ta.value;save();ta.style.borderColor=hasNC(A(i))&&!ta.value.trim()?"var(--bad)":"";rkUp();prog()};
-      {const nk=CR.filter(k=>a[k]==="nc");if(nk.length){const rows=[chipRow(ELEV[nm]||[],ta,"Qual elevador? (se for o caso)"),(/academia/i.test(nm)?selRow(INV.AC,ta,"Qual equipamento?"):chipRow(itens(nm),ta,"Qual item? (se for o caso)")),chipRow(uniq([].concat(...nk.map(k=>pr(nm,k)))),ta,"O que foi encontrado"),chipRow(uniq([].concat(...nk.map(k=>RP.a[k]),RP.a.x,empr(nm))),ta,"Quem foi comunicado"),chipRow(ESTADO,ta,"Estado da área")].filter(Boolean);if(rows.length){const dt=document.createElement("details");dt.className="rp";dt.open=!!RPOPEN[i];const sm2=document.createElement("summary");sm2.textContent="Respostas prontas";dt.appendChild(sm2);const mv=rows.filter(r=>/^(Quem foi comunicado|Estado da área)/.test(r.firstChild.textContent));rows.filter(r=>!mv.includes(r)).forEach(r=>dt.appendChild(r));if(mv.length){const d2=document.createElement("details");d2.className="rp rp2";d2.open=!!RPOPEN[i+"c"];const s3=document.createElement("summary");s3.textContent="Comunicação e estado da área";d2.appendChild(s3);mv.forEach(r=>d2.appendChild(r));d2.ontoggle=()=>{RPOPEN[i+"c"]=d2.open};dt.appendChild(d2)}dt.ontoggle=()=>{RPOPEN[i]=dt.open};x.insertBefore(dt,ta)}}}
+      ta.oninput=()=>{A(i).n=ta.value;save();ta.style.borderColor=hasNC(A(i))&&!ta.value.trim()?"var(--bad)":"";rkUp();areaSum($("a"+i),i);prog();grow(ta)};
+      {const nk=CR.filter(k=>a[k]==="nc");if(nk.length){const rows=[chipRow(ELEV[nm]||[],ta,"Qual elevador? (se for o caso)"),(/academia/i.test(nm)?selRow(INV.AC,ta,"Qual equipamento?"):chipRow(itens(nm),ta,"Qual item? (se for o caso)")),chipRow(uniq([].concat(...nk.map(k=>pr(nm,k)))),ta,"O que foi encontrado"),chipRow(uniq([].concat(...nk.map(k=>RP.a[k]),RP.a.x,empr(nm))),ta,"Quem foi comunicado"),chipRow(ESTADO,ta,"Estado da área")].filter(Boolean);if(rows.length){const dt=document.createElement("details");dt.className="rp";dt.open=RPOPEN[i]!==false;const sm2=document.createElement("summary");sm2.textContent="Respostas prontas";dt.appendChild(sm2);const mv=rows.filter(r=>/^(Quem foi comunicado|Estado da área)/.test(r.firstChild.textContent));rows.filter(r=>!mv.includes(r)).forEach(r=>dt.appendChild(r));if(mv.length){const d2=document.createElement("details");d2.className="rp rp2";d2.open=!!RPOPEN[i+"c"];const s3=document.createElement("summary");s3.textContent="Comunicação e estado da área";d2.appendChild(s3);mv.forEach(r=>d2.appendChild(r));d2.ontoggle=()=>{RPOPEN[i+"c"]=d2.open};dt.appendChild(d2)}dt.ontoggle=()=>{RPOPEN[i]=dt.open};rkEl.after(dt)}}}
       const ph=x.querySelector(".ph");
       (a.p||[]).forEach(u=>{const m=new Image();m.src=u;m.alt="Foto de "+nm;ph.appendChild(m)});
       const mk=(txt,cam,multi)=>{const b=document.createElement("button");b.className="addph";b.textContent=txt;
@@ -441,10 +468,10 @@ function xEntry(e){
     const f=document.createElement("input");f.type="file";f.accept="image/*";if(cam)f.capture="environment";if(mu)f.multiple=true;f.hidden=true;
     b.onclick=()=>f.click();f.onchange=()=>{addFiles(e,f.files);f.value=""};ph.append(b,f)});
   rm.textContent="Remover esta ocorrência";
-  w.append(nl,ni,nh,ol);
+  w.append(nl,ni,nh,ol,ta);
   const rows=[chipRow(uniq([].concat(...Object.values(RP.p))),ta,"O que foi encontrado"),chipRow(uniq([].concat(...Object.values(RP.a))),ta,"Quem foi acionado")].filter(Boolean);
   if(rows.length){const dt=document.createElement("details");dt.className="rp";dt.open=!!RPOPEN[e.id];const s2=document.createElement("summary");s2.textContent="Respostas prontas";dt.appendChild(s2);rows.forEach(r=>dt.appendChild(r));dt.ontoggle=()=>{RPOPEN[e.id]=dt.open};w.appendChild(dt)}
-  w.append(ta,sp("Gravidade"),seg,gh,sp("Fotos"),ph,fh,rm);
+  w.append(sp("Gravidade"),seg,gh,sp("Fotos"),ph,fh,rm);
   return w}
 function buildX(L){
   const open=OPEN==="x",d=document.createElement("div");d.id="ax";XUPD=[];
@@ -695,7 +722,7 @@ function usePdfFonts(d){if(!PDFF.data)return;try{
   const sf=d.setFont.bind(d);d.setFont=(n,st,w)=>sf(n==="helvetica"?"Lato":n==="times"?"Playfair":n,st,w);d.setFont("helvetica","normal")}catch(e){}}
 const LIGA=["de","da","do","das","dos","e"];
 const nm=t=>{t=String(t||"").trim();if(t!==t.toUpperCase()&&t!==t.toLowerCase())return t;return t.toLowerCase().split(/\s+/).map((w,i)=>i&&LIGA.includes(w)?w:w.charAt(0).toUpperCase()+w.slice(1)).join(" ")};
-const rondaId=()=>{const p=String(S.resp||"").trim().split(/\s+/).filter(w=>w&&!LIGA.includes(w.toLowerCase())),ini=p.length?(p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase():"";return "LE-"+S.dt.replace(/-/g,"")+"-"+(slug(S.tn)||"ronda").toUpperCase()+(ini?"-"+ini:"")};
+const rondaId=()=>{const p=String(S.resp||"").trim().split(/\s+/).filter(w=>w&&!LIGA.includes(w.toLowerCase())),ini=p.length?(p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase():"";return "LE-"+S.dt.split("-").reverse().join("")+"-"+(slug(S.tn)||"ronda").toUpperCase()+(ini?"-"+ini:"")};
 function pdfCab(d,sub,id){
   const M=14,W=210,G=[201,169,97],V=[26,26,26],MU=[107,107,107];
   d.setDrawColor(...G);d.setLineWidth(.7);d.circle(M+9,M+9,9);d.setLineWidth(.2);d.circle(M+9,M+9,7.6);
@@ -746,31 +773,40 @@ function makeReport(m){
   const kp=[[dR,"dias com ronda",[26,26,26]],[novas,"situações novas",novas?AMc:OKc],[st.resolvidas.length,"resolvidas",OKc],[nA,"em aberto",nA?BADc:OKc]],bw=(W-2*M-9)/4;
   K.room(26);kp.forEach(([n,t,c],j)=>{const x=M+j*(bw+3);d.setDrawColor(215);d.setLineWidth(.3);d.roundedRect(x,K.y-2,bw,20,2,2);d.setFont("times","bold");d.setFontSize(20);d.setTextColor(...c);d.text(String(n),x+bw/2,K.y+9,{align:"center"});d.setFont("helvetica","normal");d.setFontSize(9);d.setTextColor(...GR);d.text(t,x+bw/2,K.y+15,{align:"center"})});d.setLineWidth(.2);K.y+=28;
   /* situações que precisam de decisão: sem providência, ou última providência aguardando orçamento/aprovação */
-  const prec=ab.filter(c=>{const la=(c.acoes||[]).slice(-1)[0];return !la||/aprova|or[cç]amento|decis|autoriz/i.test(la.txt)});
-  if(prec.length){K.sec("Pendências que precisam de decisão");prec.forEach(c=>{const la=(c.acoes||[]).slice(-1)[0],tl=la?d.splitTextToSize("Última providência ("+fmtDate(la.dt).slice(0,5)+"): "+la.txt,W-2*M-8):[];
-    K.room(24+tl.length*4.4);const y0=K.y;d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(26,26,26);d.text(c.area+" — "+CN[c.k],M+5,K.y);K.y+=5;
-    d.setFont("helvetica","normal");d.setFontSize(8.5);d.setTextColor(...AMc);d.text(la?"aguardando decisão · "+c.status:"nenhuma providência registrada",M+5,K.y);K.y+=4.8;
-    if(tl.length){d.setFontSize(9.5);d.setTextColor(60,60,60);d.text(tl,M+5,K.y);K.y+=tl.length*4.4+1}
-    d.setFontSize(9.5);d.setTextColor(26,26,26);d.text("Decisão: ______________________________   Responsável: ________________   Prazo: ___/___/_____",M+5,K.y+4);K.y+=8;
-    d.setFillColor(...AMc);d.rect(M,y0-4,1.1,K.y-y0+3,"F");K.y+=6})}
+  const prec=new Set(ab.filter(c=>{const la=(c.acoes||[]).slice(-1)[0];return !la||/aprova|or[cç]amento|decis|autoriz/i.test(la.txt)}).map(c=>c.key));
+  /* visão geral: uma linha por situação em aberto, para ler em 10 segundos */
+  if(nA){K.sec("Situações em aberto · visão geral");
+    const cx=[M+3,M+90,M+108,M+129,M+166],hdr=()=>{d.setFillColor(26,26,26);d.rect(M,K.y-4.6,W-2*M,7,"F");d.setFont("helvetica","bold");d.setFontSize(7.5);d.setTextColor(255,255,255);["ÁREA · CRITÉRIO","DESDE","ABERTA HÁ","SITUAÇÃO","DECISÃO"].forEach((t,j)=>d.text(t,cx[j],K.y));K.y+=7.4};
+    K.room(24);hdr();
+    ab.forEach((c,j)=>{if(K.y+8>276){d.addPage();K.y=18;hdr()}
+      if(j%2===0){d.setFillColor(247,246,244);d.rect(M,K.y-4.8,W-2*M,7.6,"F")}
+      const la=(c.acoes||[]).slice(-1)[0],col=la?AMc:BADc,n=dias(c.since,ref);
+      d.setFont("helvetica","bold");d.setFontSize(9);d.setTextColor(26,26,26);d.text(trunc(c.area+" — "+CN[c.k],48),cx[0],K.y);
+      d.setFont("helvetica","normal");d.setTextColor(70,70,70);d.text(fmtDate(c.since).slice(0,5),cx[1],K.y);d.text(n+(n===1?" dia":" dias"),cx[2],K.y);
+      d.setFillColor(...col);d.circle(cx[3]+1,K.y-1.1,1,"F");d.setFont("helvetica","bold");d.setTextColor(...col);d.text(la?"Em andamento":"Sem providência",cx[3]+4,K.y);
+      d.setTextColor(...(prec.has(c.key)?AMc:GR));d.text(prec.has(c.key)?"Precisa":"—",cx[4],K.y);K.y+=7.6});
+    K.y+=1;d.setDrawColor(215);d.setLineWidth(.2);d.line(M,K.y-3.6,W-M,K.y-3.6);
+    d.setFont("helvetica","normal");d.setFontSize(8);d.setTextColor(...GR);d.text("Barra lateral dos cartões: vermelho = sem providência · âmbar = em andamento · verde = resolvida.",M,K.y+1);K.y+=10}
   K.caso2=c=>{
+    d.setFont("helvetica","normal");d.setFontSize(10);
     const fech=!!c.closedAt,ac=c.acoes||[],n=dias(c.since,fech?c.closedAt:ref),col=fech?OKc:(ac.length?AMc:BADc),dd=n+(n===1?" dia":" dias"),
-      stt=fech?"Resolvida em "+fmtDate(c.closedAt).slice(0,5)+" · "+dd:(c.status==="em andamento"?"Em andamento":"Em aberto")+" há "+dd,pw=c.ph?58:0,tw=W-2*M-10-(pw?pw+4:0),
+      stt=fech?"Resolvida em "+fmtDate(c.closedAt).slice(0,5)+" · "+dd:(c.status==="em andamento"?"Em andamento":"Em aberto")+" há "+dd,pw=c.ph?44:0,tw=W-2*M-10-(pw?pw+4:0),
       ln=c.n?d.splitTextToSize(c.n,tw):[],la=ac.map(a=>d.splitTextToSize(fmtDate(a.dt).slice(0,5)+" · "+(a.st==="resolvida"?"Resolvida":"Em andamento")+(a.resp?" ("+a.resp+")":"")+": "+a.txt,W-2*M-16)),ph=[].concat(...ac.map(a=>a.p||[])).slice(0,3),
-      hTop=Math.max(14+ln.length*4.6,pw?44:0)+3,h=hTop+4.5+(la.length?la.reduce((s,l)=>s+l.length*4.5,0):5)+(ph.length?27:0)+(fech?7:0)+8;
+      dec=!fech&&prec.has(c.key),hTop=Math.max(14+ln.length*4.6,pw?35:0)+3,h=hTop+4.5+(la.length?la.reduce((s,l)=>s+l.length*4.5,0):5)+(ph.length?27:0)+(fech?7:0)+(dec?16:0)+8;
     K.room(h);const y0=K.y;d.setFont("times","bold");d.setFontSize(12);d.setTextColor(26,26,26);d.text(c.area+" — "+CN[c.k],M+5,K.y);
     d.setFont("helvetica","bold");d.setFontSize(9.5);d.setTextColor(...col);d.text(stt,W-M-3,K.y,{align:"right"});K.y+=5.5;
     d.setFontSize(7.5);d.setTextColor(...GR);d.text("O QUE FOI VISTO",M+5,K.y);K.y+=4;d.setFont("helvetica","normal");d.setFontSize(9);d.text("Visto em "+fmtDate(c.since).slice(0,5)+" · registrado em "+c.days+(c.days===1?" ronda":" rondas"),M+5,K.y);K.y+=4.6;
     d.setFontSize(10);d.setTextColor(40,40,40);if(ln.length)d.text(ln,M+5,K.y);
-    if(pw){try{const pr=d.getImageProperties(c.ph),r=Math.min(pw/pr.width,40/pr.height);d.addImage(c.ph,"JPEG",W-M-3-pr.width*r,y0+2,pr.width*r,pr.height*r)}catch(e){}}
+    if(pw){try{const pr=d.getImageProperties(c.ph),r=Math.min(pw/pr.width,31/pr.height);d.addImage(c.ph,"JPEG",W-M-3-pr.width*r,y0+2,pr.width*r,pr.height*r)}catch(e){}}
     K.y=y0+hTop;d.setFont("helvetica","bold");d.setFontSize(7.5);d.setTextColor(...GR);d.text("O QUE FOI FEITO",M+5,K.y);K.y+=4.5;d.setFont("helvetica","normal");d.setFontSize(9.5);
     if(la.length)ac.forEach((a,i)=>{d.setFillColor(...(a.st==="resolvida"?OKc:AMc));d.circle(M+6.2,K.y-1.1,.9,"F");d.setTextColor(40,40,40);d.text(la[i],M+9,K.y);K.y+=la[i].length*4.5});
     else{d.setFont("helvetica","italic");d.setTextColor(...(fech?GR:BADc));d.text(fech?"Sem providência registrada; a área voltou a ficar conforme na vistoria.":"Nenhuma providência registrada até agora.",M+9,K.y);K.y+=5}
     if(ph.length){K.y+=1;ph.forEach((u,j)=>{const cx=M+9+j*33;try{d.setDrawColor(225);d.setFillColor(247,246,244);d.rect(cx,K.y,30,24,"FD");const pr=d.getImageProperties(u),r=Math.min(28/pr.width,22/pr.height),w=pr.width*r,h2=pr.height*r;d.addImage(u,"JPEG",cx+(30-w)/2,K.y+(24-h2)/2,w,h2)}catch(e){}});K.y+=26}
+    if(dec){K.y+=4;d.setFont("helvetica","bold");d.setFontSize(7.5);d.setTextColor(...AMc);d.text("AGUARDA DECISÃO",M+5,K.y);K.y+=5.2;d.setFont("helvetica","normal");d.setFontSize(9.5);d.setTextColor(26,26,26);d.text("Decisão: ______________________________   Responsável: ________________   Prazo: ___/___/_____",M+5,K.y);K.y+=5}
     if(fech){d.setFont("helvetica","bold");d.setFontSize(9.5);d.setTextColor(...OKc);d.text("Resolvida em "+fmtDate(c.closedAt)+" — "+(c.via==="manual"?"providência registrada.":"confirmada na vistoria, com a área conforme."),M+5,K.y+2);K.y+=7}
     d.setFillColor(...col);d.rect(M,y0-4,1.1,K.y-y0+3,"F");K.y+=7};
+  K.sec("Situações em aberto · detalhe");if(nA)ab.forEach(K.caso2);else K.txt("Nenhuma situação em aberto.",{gap:4});
   K.sec("Resolvido neste mês");if(st.resolvidas.length)st.resolvidas.forEach(K.caso2);else K.txt("Nenhuma situação foi resolvida neste mês.",{gap:4});
-  K.sec("Ainda em aberto");if(nA)ab.forEach(K.caso2);else K.txt("Nenhuma situação em aberto.",{gap:4});
   const comP=new Set(),vist=new Set();st.L.forEach(x=>{(x.ncs||[]).forEach(n=>comP.add(n.area));Object.keys(x.st||{}).forEach(a=>vist.add(a))});const sem=[...vist].filter(a=>!comP.has(a));
   K.sec("Vistoriadas sem nenhum problema");K.txt(sem.length?sem.join(" · ")+".":"Nenhuma área foi vistoriada sem registro de problema.",{gap:3});
   const ob=st.L.filter(x=>x.obs);if(ob.length){K.sec("Observações das rondas");ob.forEach(x=>K.txt(fmtDate(x.dt).slice(0,5)+" ("+(x.tn||"—")+") · "+(x.resp||"sem responsável")+": "+x.obs,{size:9.5,gap:1.5}))}
@@ -888,7 +924,7 @@ function formAcao(c,done){
     const cur=ld(AK)||[];cur.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),key:c.key,area:c.area,k:c.k,dt:dt.value||today(),tm:hhmm(),resp:S.resp.trim(),st,txt:ta.value.trim(),p:fotos,ts:stampNow()});
     if(sv(AK,cur)){toast("Providência registrada.");done()}
   };
-  row.append(cx,ok);f.append(lab("Situação"),seg,lab("O que foi feito"),qw,ta,lab("Data da providência"),dt,ph,row);
+  row.append(cx,ok);f.append(lab("Situação"),seg,lab("O que foi feito"),ta,qw,lab("Data da providência"),dt,ph,row);
   return f;
 }
 function linhaCaso(c){
@@ -911,7 +947,7 @@ function cardCase(c,comForm){
   return r;
 }
 /* ---- reenviar (2ª via) e excluir vistorias antigas ---- */
-const rondaIdE=x=>{const p=String(x.resp||"").trim().split(/\s+/).filter(w=>w&&!LIGA.includes(w.toLowerCase())),ini=p.length?(p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase():"";return "LE-"+x.dt.replace(/-/g,"")+"-"+(slug(x.tn)||"ronda").toUpperCase()+(ini?"-"+ini:"")};
+const rondaIdE=x=>{const p=String(x.resp||"").trim().split(/\s+/).filter(w=>w&&!LIGA.includes(w.toLowerCase())),ini=p.length?(p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase():"";return "LE-"+x.dt.split("-").reverse().join("")+"-"+(slug(x.tn)||"ronda").toUpperCase()+(ini?"-"+ini:"")};
 function resumoHist(x){const l=x.ncs||[];
   return "*Checklist diário L’Essence Mooca (2ª via)* — "+fmtDate(x.dt)+", "+x.tm+(x.tn?" ("+x.tn+")":"")+"\nResponsável: "+x.resp+"\nRonda: "+rondaIdE(x)+"\n"+
     (l.length?l.length+(l.length===1?" não conformidade:\n":" não conformidades:\n")+l.map(n=>"• "+n.area+" ("+n.crit+")"+(n.n?": "+n.n:"")).join("\n"):"Nenhuma não conformidade.")}

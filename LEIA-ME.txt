@@ -127,3 +127,28 @@ O QUE TEM NESTA PASTA
   em cada aparelho e à numeração da planilha de manutenção (N. 60 a 90 = etiquetas 0060 a 0090). A numeração 1/2 usada na v25 foi substituída.
   Etiquetas conferidas nas fotos: 0061, 0062, 0064, 0065, 0067, 0068, 0071, 0074, 0075, 0076, 0077, 0078, 0079, 0081, 0085 e 0089.
   As demais seguem o mesmo padrão e devem ser conferidas no local.
+
+8) NOVIDADE DA v27: FLUXO DO INSPETOR EM TELA PEQUENA (390 px)
+  - O campo de observação agora fica logo abaixo dos critérios, ACIMA das respostas prontas. Ao tocar numa resposta, o campo
+    pisca e, se estiver fora da tela, rola até aparecer. O mesmo vale para "Outra área" e para o formulário de providência.
+  - O resumo do cartão (ex.: "Limp. ✓ Org. ✓ Integr. ✕") atualiza na hora ao digitar ou tocar numa resposta. O aviso
+    "falta observação" some quando há texto.
+  - As respostas prontas ficam numa fileira que rola para o lado (uma linha por grupo) e abrem já abertas quando há não conformidade.
+  - Cartões fechados mais baixos (82 px para 66 px). Área sem pendência não mostra mais a linha "Toque para vistoriar".
+  - Ao publicar, o sw.js já está em v27.
+
+9) NOVIDADE DA v28: RELATÓRIO DO MÊS PARA O GERENTE PREDIAL (PDF) MAIS CLARO
+  - A primeira página traz uma tabela "Situações em aberto · visão geral": uma linha por situação, com área, desde quando,
+    há quantos dias, situação (sem providência ou em andamento) e se precisa de decisão.
+  - A linha de Decisão, Responsável e Prazo agora fica dentro do cartão de cada situação que aguarda decisão. Antes a mesma
+    situação aparecia duas vezes (na lista de decisão e no detalhe).
+  - Ordem: situações em aberto primeiro, resolvidas depois. Foto menor nos cartões, com menos espaço em branco.
+  - Legenda das cores da barra lateral (vermelho, âmbar e verde) logo abaixo da tabela.
+  - sw.js em v28.
+
+10) v29: CÓDIGO DA RONDA COM A DATA EM DIA-MÊS-ANO
+  - O código no topo do PDF, no rodapé e no resumo do WhatsApp agora é LE-DDMMAAAA-TURNO-INICIAIS
+    (ex.: LE-12112026-MANHA-PS para a ronda de 12/11/2026). Antes era AAAAMMDD.
+  - Valem também para a 2ª via pelo Histórico. Os nomes dos arquivos PDF continuam com a data em AAAA-MM-DD,
+    para a lista de arquivos ficar em ordem de data.
+  - sw.js em v29.
