@@ -28,7 +28,7 @@ O QUE TEM NESTA PASTA
   o checklist deve abrir e permitir preencher, assinar e gerar o PDF.
 
 4) ATUALIZAR O APP
-  Troque os arquivos publicados e aumente o número em sw.js (VERSAO = "v2"). Sem isso, os
+  Troque os arquivos publicados e aumente o número em sw.js (VERSAO = "v30", depois "v31"...). Sem isso, os
   aparelhos continuam com a versão antiga guardada.
 
 5) O QUE FICA GUARDADO
@@ -89,7 +89,7 @@ O QUE TEM NESTA PASTA
   chips em formato de pílula, rodapé translúcido). Em "Respostas prontas", "Quem foi comunicado" e "Estado da área" ficam recolhidos
   em "Comunicação e estado da área", para a tela mostrar só o essencial.
 
-12) v22: SOBRESSOLOS E COBERTURA
+12) v22: SOBRESSOLOS E COBERTURA  (HISTÓRICO: as áreas técnicas descritas aqui saíram na v23, item 13)
   - 17 áreas novas, em seções próprias: Sobressolo S1 (garagem, sala de monitoramento, gerador, vestiários e copa, lixeiras),
     Sobressolo S2 (garagem, reservatórios inferiores, depósitos da manutenção, centros de medição/DG/quadros, bombas de recalque,
     controles de acesso de veículos, pedestres e entregas, sala de encomendas) e Cobertura (casa de máquinas, barriletes e
@@ -128,7 +128,7 @@ O QUE TEM NESTA PASTA
   Etiquetas conferidas nas fotos: 0061, 0062, 0064, 0065, 0067, 0068, 0071, 0074, 0075, 0076, 0077, 0078, 0079, 0081, 0085 e 0089.
   As demais seguem o mesmo padrão e devem ser conferidas no local.
 
-8) NOVIDADE DA v27: FLUXO DO INSPETOR EM TELA PEQUENA (390 px)
+17) NOVIDADE DA v27: FLUXO DO INSPETOR EM TELA PEQUENA (390 px)
   - O campo de observação agora fica logo abaixo dos critérios, ACIMA das respostas prontas. Ao tocar numa resposta, o campo
     pisca e, se estiver fora da tela, rola até aparecer. O mesmo vale para "Outra área" e para o formulário de providência.
   - O resumo do cartão (ex.: "Limp. ✓ Org. ✓ Integr. ✕") atualiza na hora ao digitar ou tocar numa resposta. O aviso
@@ -137,7 +137,7 @@ O QUE TEM NESTA PASTA
   - Cartões fechados mais baixos (82 px para 66 px). Área sem pendência não mostra mais a linha "Toque para vistoriar".
   - Ao publicar, o sw.js já está em v27.
 
-9) NOVIDADE DA v28: RELATÓRIO DO MÊS PARA O GERENTE PREDIAL (PDF) MAIS CLARO
+18) NOVIDADE DA v28: RELATÓRIO DO MÊS PARA O GERENTE PREDIAL (PDF) MAIS CLARO
   - A primeira página traz uma tabela "Situações em aberto · visão geral": uma linha por situação, com área, desde quando,
     há quantos dias, situação (sem providência ou em andamento) e se precisa de decisão.
   - A linha de Decisão, Responsável e Prazo agora fica dentro do cartão de cada situação que aguarda decisão. Antes a mesma
@@ -146,9 +146,24 @@ O QUE TEM NESTA PASTA
   - Legenda das cores da barra lateral (vermelho, âmbar e verde) logo abaixo da tabela.
   - sw.js em v28.
 
-10) v29: CÓDIGO DA RONDA COM A DATA EM DIA-MÊS-ANO
+19) v29: CÓDIGO DA RONDA COM A DATA EM DIA-MÊS-ANO
   - O código no topo do PDF, no rodapé e no resumo do WhatsApp agora é LE-DDMMAAAA-TURNO-INICIAIS
     (ex.: LE-12112026-MANHA-PS para a ronda de 12/11/2026). Antes era AAAAMMDD.
   - Valem também para a 2ª via pelo Histórico. Os nomes dos arquivos PDF continuam com a data em AAAA-MM-DD,
     para a lista de arquivos ficar em ordem de data.
   - sw.js em v29.
+
+20) v30: CONFIABILIDADE E RELATÓRIO
+  - Aviso de nova versão: ao publicar uma atualização, o app mostra "Atualizar agora" (o rascunho fica salvo). Também procura
+    atualização sempre que é reaberto.
+  - Importação de backup mais segura: o backup agora leva o nome do app, a versão e uma assinatura (hash). Ao importar, o app
+    avisa se o arquivo parece alterado/corrompido, se é de outro app ou de outra versão. Backups antigos (sem assinatura) continuam
+    importando, sem essa checagem. Fotos e datas inválidas no arquivo são descartadas em vez de quebrar o PDF.
+  - Data da vistoria: só pode ser hoje ou ontem (evita data errada ou futura).
+  - Relatório: a conformidade passa a contar também as ocorrências em "Outra área (não listada)"; "N/A" em um critério que estava
+    em aberto encerra a pendência; risco ainda não resolvido leva a situação geral a CRÍTICO; a frase "dentro da meta, sem pendências
+    antigas e sem risco" aparece mesmo quando há áreas sem vistoria (que são citadas ao final).
+  - Lembrete de backup (a cada 7 dias) já existia desde versões anteriores; segue ativo.
+  - IMPORTANTE ao publicar: o sw.js lista jspdf.umd.min.js (com PONTO) e a pasta fonts/ (10 arquivos). Se algum não existir
+    no repositório, o app NÃO instala offline. Confira e teste em modo avião.
+  - sw.js em v30.
