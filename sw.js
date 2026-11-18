@@ -1,6 +1,6 @@
 // Service worker: guarda o app no aparelho para funcionar sem internet.
 // A cada publicação nova, aumente VERSAO (v2, v3...) para os aparelhos receberem a atualização.
-const VERSAO = "v29";
+const VERSAO = "v30";
 const CACHE = "checklist-lessence-" + VERSAO;
 const ARQUIVOS = [
   "./",
